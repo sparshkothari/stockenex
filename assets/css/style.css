@@ -1,0 +1,768 @@
+#root {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card {
+    margin: 1rem;
+    border: 1px solid gray;
+}
+
+@media screen and (min-width: 600px) {
+    .card {
+        flex: 1 1 calc(50% - 2rem);
+    }
+}
+
+@media screen and (min-width: 900px) {
+    .card {
+        flex: 1 1 calc(33% - 2rem);
+    }
+}
+
+#table1,
+#table2,
+#table3,
+.table1,
+.tableDashboard,
+.table2 {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+}
+
+#table1,
+#table2,
+#table3,
+.table1,
+.table2 td,
+#table1,
+#table2,
+#table3,
+.table1,
+.table2 th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#table1,
+#table2,
+#table3,
+.table1,
+.tableDashboard,
+.table2 td,
+#table1,
+#table2,
+#table3,
+.table1,
+.tableDashboard,
+.table2 th {
+    white-space: wrap;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+
+#table1,
+#table2,
+#table3,
+.table1,
+.table2 tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#table1,
+#table2,
+#table3,
+.table1,
+.table2 tr:hover {
+    background-color: #ddd;
+}
+
+#table1,
+#table2,
+#table3,
+.table1,
+.table2 th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.tableDashboard {
+
+    background-color: Transparent !important;
+
+}
+
+.b1 {
+    background-color: #4CAF50;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+/*.button2{ display:inline-block; padding:0.5em 3em; border:0.16em solid #FF0000; margin:0 0.3em 0.3em 0; box-sizing:
+border-box; text-decoration:none; text-transform:uppercase; font-family:'Trattatello', fantasy; font-size: xx-large; font-weight:400;
+color:#0000FF; text-align:center; transition: all 0.15s; } .button2:hover{ color:#DDDDDD; border-color:#DDDDDD; }
+.button2:active{ color:#BBBBBB; border-color:#BBBBBB; } @media all and (max-width:30em){ .button2{ display:block;
+margin:0.4em auto; } } /*p {indent-text: 90%;}*/
+
+.buttonX {
+    background-color: Transparent;
+    display: inline-block;
+    padding: 0.5em 3em;
+    border: 0.16em solid Transparent;
+    margin: 0 0.3em 0.3em 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-family: normal;
+    font-style: 'italic';
+    font-size: xx-large;
+    font-weight: 400;
+    color: #000000;
+    text-align: center;
+    transition: all 0.15s;
+}
+
+.buttonX:hover {
+    color: #DDDDDD;
+    border-color: #DDDDDD;
+}
+
+.buttonY:hover {
+    color: #DDDDDD;
+    border-color: #DDDDDD;
+}
+
+
+.buttonX:active {
+    color: #BBBBBB;
+    border-color: #BBBBBB;
+}
+
+.buttonY:active {
+    color: #BBBBBB;
+    border-color: #BBBBBB;
+}
+
+.buttonT {
+    font-size: medium !important;
+    padding: 5x 5x !important;
+}
+
+.cellDashboard {
+    font-family: normal !important;
+    font-style: 'italic' !important;
+}
+
+.buttonType1 {
+
+    font-family: normal !important;
+    font-style: 'italic' !important;
+    color: white !important;
+    font-weight: 400 !important;
+    background-color: black !important;
+    font-size: small !important;
+
+}
+
+.column {
+    /*width:350px;
+     float:left*/
+    color: white !important;
+    /*display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;*/
+
+
+}
+
+
+.text1 {
+    background-color: Transparent;
+    display: inline-block;
+    padding: 0.5em 0.5em;
+    border: 0.08em solid Transparent;
+    margin: 1em 0.3em 0.3em 8.2em;
+    box-sizing: border-box;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-family: normal;
+    font-style: 'italic';
+    font-size: medium;
+    font-weight: 400;
+    color: white;
+    text-align: center;
+    transition: all 0.15s;
+}
+
+.input1 {
+    background-color: Transparent;
+    display: inline-block;
+    padding: 0.5em 0.5em;
+    border: 0.08em solid white;
+    box-sizing: border-box;
+    text-decoration: none;
+    /*text-transform:uppercase; */
+    font-family: normal;
+    font-style: 'italic';
+    font-size: medium;
+    font-weight: 400;
+    color: white;
+    text-align: center;
+    transition: all 0.15s;
+}
+
+.input1::placeholder {
+    color: white;
+}
+
+
+.x1 {
+    position: absolute;
+    top: 5%;
+    right: 50%;
+}
+
+.x2 {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+}
+
+.h1,
+.h2 {
+    font-family: BI;
+    color: white;
+    font-weight: 400;
+}
+
+.h3 {
+    font-family: BI;
+}
+
+.h1 {
+    position: absolute;
+    top: 5%;
+    left: 70%;
+}
+
+
+body,
+html {
+    height: 100%;
+    margin: 0;
+    background-color: blue;
+}
+
+.bg,
+.main {
+
+
+    /* Full height */
+    height: 100%;
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: transparent;
+}
+
+.main {
+    /* The image used */
+    /*background-image: url("e.jpg");*/
+
+}
+
+.nav-table {
+    background-color: transparent;
+    font-family: BI;
+    color: white;
+}
+
+.BIwhite {
+    font-family: BI !important;
+    color: white !important;
+
+}
+
+
+.text2 {
+    font-family: normal !important;
+    font-style: 'italic' !important;
+    color: white !important;
+    font-weight: 400 !important;
+    background-color: none !important;
+    font-size: large !important;
+    width: 50%;
+    text-align: center;
+}
+
+.d12 {
+    position: absolute;
+    left: 30%;
+}
+
+
+.homePageHeader {
+
+    font-family: LSS;
+    font-size: 85px;
+    text-align: center;
+    color: white;
+}
+
+.homePageText {
+
+    font-family: BI;
+    font-size: 60px;
+    text-align: center;
+    color: white;
+}
+
+.circle {
+    height: 25px;
+    width: 25px;
+    background-color: red;
+    border-radius: 50%;
+}
+
+.aniTime {
+
+    animation-duration: 2s !important;
+    animation-timing-function: ease;
+
+}
+
+/*.aniDiv {
+  position: relative;
+  animation-name: example;
+  animation-duration: 4s;
+  animation-delay: 0s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease;
+}*/
+
+@keyframes example {
+    0% {
+        opacity: 0%
+    }
+
+    1% {
+        opacity: 0%
+    }
+
+    2% {
+        opacity: 0%
+    }
+
+    3% {
+        opacity: 0%
+    }
+
+    4% {
+        opacity: 0%
+    }
+
+    5% {
+        opacity: 0%
+    }
+
+    6% {
+        opacity: 0%
+    }
+
+    7% {
+        opacity: 0%
+    }
+
+    8% {
+        opacity: 0%
+    }
+
+    9% {
+        opacity: 0%
+    }
+
+    10% {
+        opacity: 0%
+    }
+
+    11% {
+        opacity: 0%
+    }
+
+    12% {
+        opacity: 0%
+    }
+
+    13% {
+        opacity: 0%
+    }
+
+    14% {
+        opacity: 0%
+    }
+
+    15% {
+        opacity: 0%
+    }
+
+    16% {
+        opacity: 0%
+    }
+
+    17% {
+        opacity: 0%
+    }
+
+    18% {
+        opacity: 0%
+    }
+
+    19% {
+        opacity: 0%
+    }
+
+    20% {
+        opacity: 0%
+    }
+
+    21% {
+        opacity: 0%
+    }
+
+    22% {
+        opacity: 0%
+    }
+
+    23% {
+        opacity: 0%
+    }
+
+    24% {
+        opacity: 0%
+    }
+
+    25% {
+        opacity: 0%
+    }
+
+    26% {
+        opacity: 0%
+    }
+
+    27% {
+        opacity: 0%
+    }
+
+    28% {
+        opacity: 0%
+    }
+
+    29% {
+        opacity: 0%
+    }
+
+    30% {
+        opacity: 0%
+    }
+
+    31% {
+        opacity: 0%
+    }
+
+    32% {
+        opacity: 0%
+    }
+
+    33% {
+        opacity: 0%
+    }
+
+    34% {
+        opacity: 0%
+    }
+
+    35% {
+        opacity: 0%
+    }
+
+    36% {
+        opacity: 0%
+    }
+
+    37% {
+        opacity: 0%
+    }
+
+    38% {
+        opacity: 0%
+    }
+
+    39% {
+        opacity: 0%
+    }
+
+    40% {
+        opacity: 0%
+    }
+
+    41% {
+        opacity: 0%
+    }
+
+    42% {
+        opacity: 0%
+    }
+
+    43% {
+        opacity: 0%
+    }
+
+    44% {
+        opacity: 0%
+    }
+
+    45% {
+        opacity: 0%
+    }
+
+    46% {
+        opacity: 0%
+    }
+
+    47% {
+        opacity: 0%
+    }
+
+    48% {
+        opacity: 0%
+    }
+
+    49% {
+        opacity: 0%
+    }
+
+    50% {
+        opacity: 0%
+    }
+
+    51% {
+        opacity: 2%
+    }
+
+    52% {
+        opacity: 4%
+    }
+
+    53% {
+        opacity: 6%
+    }
+
+    54% {
+        opacity: 8%
+    }
+
+    55% {
+        opacity: 10%
+    }
+
+    56% {
+        opacity: 12%
+    }
+
+    57% {
+        opacity: 14%
+    }
+
+    58% {
+        opacity: 16%
+    }
+
+    59% {
+        opacity: 18%
+    }
+
+    60% {
+        opacity: 20%
+    }
+
+    61% {
+        opacity: 22%
+    }
+
+    62% {
+        opacity: 24%
+    }
+
+    63% {
+        opacity: 26%
+    }
+
+    64% {
+        opacity: 28%
+    }
+
+    65% {
+        opacity: 30%
+    }
+
+    66% {
+        opacity: 32%
+    }
+
+    67% {
+        opacity: 34%
+    }
+
+    68% {
+        opacity: 36%
+    }
+
+    69% {
+        opacity: 38%
+    }
+
+    70% {
+        opacity: 40%
+    }
+
+    71% {
+        opacity: 42%
+    }
+
+    72% {
+        opacity: 44%
+    }
+
+    73% {
+        opacity: 46%
+    }
+
+    74% {
+        opacity: 48%
+    }
+
+    75% {
+        opacity: 50%
+    }
+
+    76% {
+        opacity: 52%
+    }
+
+    77% {
+        opacity: 54%
+    }
+
+    78% {
+        opacity: 56%
+    }
+
+    79% {
+        opacity: 58%
+    }
+
+    80% {
+        opacity: 60%
+    }
+
+    81% {
+        opacity: 62%
+    }
+
+    82% {
+        opacity: 64%
+    }
+
+    83% {
+        opacity: 66%
+    }
+
+    84% {
+        opacity: 68%
+    }
+
+    85% {
+        opacity: 70%
+    }
+
+    86% {
+        opacity: 72%
+    }
+
+    87% {
+        opacity: 74%
+    }
+
+    88% {
+        opacity: 76%
+    }
+
+    89% {
+        opacity: 78%
+    }
+
+    90% {
+        opacity: 80%
+    }
+
+    91% {
+        opacity: 82%
+    }
+
+    92% {
+        opacity: 84%
+    }
+
+    93% {
+        opacity: 86%
+    }
+
+    94% {
+        opacity: 88%
+    }
+
+    95% {
+        opacity: 90%
+    }
+
+    96% {
+        opacity: 92%
+    }
+
+    97% {
+        opacity: 94%
+    }
+
+    98% {
+        opacity: 96%
+    }
+
+    99% {
+        opacity: 98%
+    }
+
+    100% {
+        opacity: 100%
+    }
+}

@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block body %}
+<body>
+    <div id="main" class="m-scene">
+        <div class="w3-container w3-center" style="font-family: BI; color:white;">
+            <h1 class="h2 scene_element scene_element--fadeinright-wide">{{ userData.name }}'s Profile</h1><br>
+            <div id="userAT" class="scene_element scene_element--fadeinleft-wide" style="margin-left: auto;
+    margin-right: auto; width:500px; font-family: BI"></div>
+            <div class="scene_element scene_element--fadeinright-wide">
+                <p>Subscription Model<br>There are 4 different subscription options. They are listed below.
+                    Each package offers a set number of stock symbols you can add to your personal dashboard, which provides the full information for each stock.
+                    <br>
+                    1. Free — $0/month | Offers Two Stocks<br>
+                    2. Basic — $10/month | Offers Ten Stocks<br>
+                    3. Premium — $20/month | Offers Twenty Stocks<br>
+                    4. Platinum — $50/month | Offers Fifty Stocks<br>
+                </p>
+            </div>
+            <p id='freeS' style="color:white" class="w3-bar-item w3-button BIwhite scene_element scene_element--fadeinleft-wide">Upgrade to Free</p>
+            <p id='basicS' style="color:white" class="w3-bar-item w3-button BIwhite scene_element scene_element--fadeinright-wide">Upgrade to Basic</p>
+            <p id='premiumS' style="color:white" class="w3-bar-item w3-button BIwhite scene_element scene_element--fadeinleft-wide">Upgrade to Premium</p>
+            <p id='platinumS' style="color:white" class="w3-bar-item w3-button BIwhite scene_element scene_element--fadeinup">Upgrade to Platinum</p>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <link rel="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/js/vex.combined.min.js"></script>
+        <script>
+        vex.defaultOptions.className = 'vex-theme-os'
+        </script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex-theme-os.min.css" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.4.3/css/tabulator.min.css" rel="stylesheet">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.4.3/js/tabulator.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.4.3/js/jquery_wrapper.min.js"></script>
+        <script src="/assets/js/profile/profileHandler.js"></script>
+        <script src="/assets/js/profile/subscriptionHandler.js"></script>
+        <script type="text/javascript">
+            var userDataFromMongo = {{ userData|tojson }}
+        </script>
+        <script src="/assets/js/profile/profile.js"></script>
+    </div>
+</body>
+{% endblock %}

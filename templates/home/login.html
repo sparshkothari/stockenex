@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block body %}
+<body>
+    <div id="main" class="m-scene">
+        <div class="w3-container w3-center" style="color:white; font-family: BI">
+            <h1 class="h2 scene_element scene_element--fadeinleft-wide"> Login </h1>
+            <form action="{{ url_for('home_bp.login') }}" method=post>
+                <fieldset style="border: 0px">
+                    <p class="scene_element scene_element--fadeinright-wide">Username:</p>
+                    <input class="scene_element scene_element--fadeinleft-wide" type="text" id="username" name="username" value="sally90"><br>
+                    <p class="scene_element scene_element--fadeinleft-wide">Password:</p>
+                    <input class="scene_element scene_element--fadeinright-wide" type="text" id="password" name="password" value="00"><br><br>
+                    <input class="scene_element scene_element--fadeinright-wide" type="submit" id="submit"  value="Login">
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</body>
+{% endblock %}

@@ -12,8 +12,7 @@ import sys
 
 sys.dont_write_bytecode = True
 
-app = Flask(__name__, static_url_path='/assets',
-            static_folder='assets')
+app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
     "db": "stockenex",
 }

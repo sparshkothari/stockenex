@@ -15,7 +15,7 @@ sys.dont_write_bytecode = True
 app = Flask(__name__, static_url_path='/assets',
             static_folder='assets')
 app.config['MONGODB_SETTINGS'] = {
-    "db": "pyUser",
+    "db": "stockenex",
 }
 db = MongoEngine(app)
 app.session_interface = MongoEngineSessionInterface(db)#MongoDBSessionInterface(app, db, 'sessions')

@@ -70,20 +70,19 @@ function dashboardStocksTabulator(data) {
                                             window.alert("Incorrect Password for user");
                                             this.open()
                                         } else {
-                                            $.post("/symbol",
-                                            {
-                                                symbol: cell.getValue(),
-                                                operation: operation
-                                            })
-                                            .done(function(data, status){
-                                                localStorage.setItem("userData", data);
-                                                dashboardProfile()
-                                                if (operation == "add") {
-                                                    cell.getElement().style.backgroundColor = "#C0C0C0"
-                                                } else if (operation == "remove") {
-                                                    cell.getElement().style.backgroundColor = cell.getColumn().getDefinition().title
-                                                }
-                                            });
+                                            $.post("/symbol", {
+                                                    symbol: cell.getValue(),
+                                                    operation: operation
+                                                })
+                                                .done(function(data, status) {
+                                                    localStorage.setItem("userData", data);
+                                                    dashboardProfile()
+                                                    if (operation == "add") {
+                                                        cell.getElement().style.backgroundColor = "#C0C0C0"
+                                                    } else if (operation == "remove") {
+                                                        cell.getElement().style.backgroundColor = cell.getColumn().getDefinition().title
+                                                    }
+                                                });
                                         }
                                     }
                                 }
@@ -104,63 +103,60 @@ function dashboardStocksTabulator(data) {
 function dashboardProfile() {
     let userData = JSON.parse(String(localStorage.getItem("userData")))
     let symbols = userData["symbols"]
-    if (symbols) {
-        if (symbols.length > 0) {
-            let ustColumns = [
-                { formatter: "rownum", hozAlign: "center", width: 50 },
-                { title: "Symbol", field: "Symbol", hozAlign: "center", width: 100 },
-                {
-                    title: "Value",
-                    field: "Value",
-                    hozAlign: "center",
-                    formatter: "textarea"
-                },
-                {
-                    title: "Color",
-                    field: "Color",
-                    hozAlign: "center"
-                }
-            ]
-            let ustData = []
-            $.get("/stock")
-            .done(function(data, status){
-                var data_ = data;
-                for (let item of data_) {
-                    if (symbols.includes(item["symbol"])) {
-                        let u = new Object()
-                        u.Symbol = item["symbol"]
-                        u.Value = item["value"]
-                        u.Color = item["color"]
-                        ustData.push(u)
-                    }
-                }
-                var UserST = new Tabulator("#userST", {
-                    tooltips: function(cell) {
-                        return cell.getValue();
-                    },
-                    height: "100%",
-                    data: ustData,
-                    layout: "fitColumns",
-                    rowFormatter: function(row) {
-                        let c = row.getCell("Color").getValue();
-                        row.getElement().style.backgroundColor = c;
-                        if (c == "#000080" || c == "#005f00") {
-                            row.getElement().style.color = "white";
-                        }
-                    },
-                    columns: ustColumns,
-                });
-                UserST.redraw()
-                UserST.hideColumn("Color")
-            });
+
+    let ustColumns = [
+        { formatter: "rownum", hozAlign: "center", width: 50 },
+        { title: "Symbol", field: "Symbol", hozAlign: "center", width: 100 },
+        {
+            title: "Value",
+            field: "Value",
+            hozAlign: "center",
+            formatter: "textarea"
+        },
+        {
+            title: "Color",
+            field: "Color",
+            hozAlign: "center"
         }
-    }
+    ]
+    let ustData = []
+    $.get("/stock")
+        .done(function(data, status) {
+            var data_ = data;
+            for (let item of data_) {
+                if (symbols.includes(item["symbol"])) {
+                    let u = new Object()
+                    u.Symbol = item["symbol"]
+                    u.Value = item["value"]
+                    u.Color = item["color"]
+                    ustData.push(u)
+                }
+            }
+            var UserST = new Tabulator("#userST", {
+                tooltips: function(cell) {
+                    return cell.getValue();
+                },
+                height: "100%",
+                data: ustData,
+                layout: "fitColumns",
+                rowFormatter: function(row) {
+                    let c = row.getCell("Color").getValue();
+                    row.getElement().style.backgroundColor = c;
+                    if (c == "#000080" || c == "#005f00") {
+                        row.getElement().style.color = "white";
+                    }
+                },
+                columns: ustColumns,
+            });
+            UserST.redraw()
+            UserST.hideColumn("Color")
+        });
 }
 
 function dashboardStocks() {
-     $.get("/stock")
-      .done(function(data, status){
-        var data_ = data;
-        dashboardStocksTabulator(data_);
-    });
+    $.get("/stock")
+        .done(function(data, status) {
+            var data_ = data;
+            dashboardStocksTabulator(data_);
+        });
 }

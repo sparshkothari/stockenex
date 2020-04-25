@@ -16,7 +16,7 @@ document.getElementById("submit").addEventListener("click", function() {
             vex.dialog.alert({
                 message: 'You successfully created an account!',
                 callback: function(value) {
-                     window.location.href = "/profile"
+                    window.location.href = "/profile";
 
                 }
 
@@ -25,12 +25,11 @@ document.getElementById("submit").addEventListener("click", function() {
         .fail(function() {
             //console.log("fail")
             vex.dialog.buttons.YES.text = "Okay";
-            vex.dialog.alert('The chosen username is already registered.')
+            vex.dialog.alert('The chosen username is already registered.');
 
         });
 
 
-    console.log("HERE")
 
 
 }, false);

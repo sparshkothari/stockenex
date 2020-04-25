@@ -24,7 +24,7 @@ def register():
         password = request.form["password"]
         email = request.form["email"]
         if User.objects(Q(username=username)):
-            return Response(json.dumps([]), 200)
+            return Response(json.dumps([]), 400)
         u = User(name=name, username=username, password=password, email=email)
         u.save()
         userData = u.to_json()

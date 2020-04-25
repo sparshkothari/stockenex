@@ -11,11 +11,13 @@
 
 <div>
       <div class="w3-bar" style="font-family:BI; color:white">
+        {% if not session.logged_in%}
         <a href="{{ url_for('home_bp.index') }}" class="w3-bar-item w3-button w3-hover-blue"><i class="fa fa-home"></i></a>
+        {% else %}
+        <a href="{{ url_for('profile_bp.profile') }}" class="w3-bar-item w3-button w3-hover-blue"><i class="fa fa-home"></i></a>
+        {% endif %}
         <a href="{{ url_for('home_bp.about') }}" class="w3-bar-item w3-button w3-hover-blue">About</a>
-        <a href="{{ url_for('profile_bp.profile') }}" class="w3-bar-item w3-button">Profile</a>
         <a href="{{ url_for('home_bp.contact') }}" class="w3-bar-item w3-button w3-hover-blue">Contact</a>
-        <a href="{{ url_for('dashboard_bp.dashboard') }}" class="w3-bar-item w3-button w3-hover-blue">Dashboard</a>
         <a href="{{ url_for('home_bp.register') }}" class="w3-bar-item w3-button w3-hover-blue">Register</a>
         {% if not session.logged_in %}
         <a href="{{ url_for('home_bp.login') }}" class="w3-bar-item w3-button w3-hover-blue">Login</a>

@@ -1,26 +1,68 @@
 {% extends "layout.html" %}
 {% block body %}
+
 <body>
     <div id="main" class="m-scene">
-        <div class="w3-container w3-center" style="font-family: BI; color:white;">
-            <h1 class="h2 scene_element scene_element--fadeinright-wide">{{ userData.name }}'s Profile</h1><br>
-            <div id="userAT" class="scene_element scene_element--fadeinleft-wide" style="margin-left: auto;
-    margin-right: auto; width:500px; font-family: BI"></div>
-            <div class="scene_element scene_element--fadeinright-wide">
-                <p>Subscription Model<br>There are 4 different subscription options. They are listed below.
-                    Each package offers a set number of stock symbols you can add to your personal dashboard, which provides the full information for each stock.
-                    <br>
-                    1. Free — $0/month | Offers Two Stocks<br>
-                    2. Basic — $10/month | Offers Ten Stocks<br>
-                    3. Premium — $20/month | Offers Twenty Stocks<br>
-                    4. Platinum — $50/month | Offers Fifty Stocks<br>
-                </p>
+        <div class="w3-container w3-center" style="background-color: black">
+            <div class="w3-bar w3-center" style="font-family:BI; color:white; background-color: black;">
+                <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('Profile')">Profile</button>
+                <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('StockTable')">Stock Portfolio</button>
+                <button style="" class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('Dashboard')">Dashboard</button>
             </div>
-            <p id='freeS' style="color:white" class="w3-bar-item w3-button BIwhite scene_element scene_element--fadeinleft-wide">Upgrade to Free</p>
-            <p id='basicS' style="color:white" class="w3-bar-item w3-button BIwhite scene_element scene_element--fadeinright-wide">Upgrade to Basic</p>
-            <p id='premiumS' style="color:white" class="w3-bar-item w3-button BIwhite scene_element scene_element--fadeinleft-wide">Upgrade to Premium</p>
-            <p id='platinumS' style="color:white" class="w3-bar-item w3-button BIwhite scene_element scene_element--fadeinup">Upgrade to Platinum</p>
         </div>
+        <div id="Welcome" class="pTab w3-display-middle">
+            <h1 style="text-align:center" class="h2 scene_element scene_element--fadein">Welcome {{ userData.name }} to Stockenex!</h1><br>
+        </div>
+        <div id="Profile" class="pTab" style="display:none">
+            <div id="iProf" class="w3-container w3-center" style="font-family: BI; color:white;">
+                <h1 id="hIProf" style="text-align:center" class="h2 scene_element scene_element--fadein">{{ userData.name }}'s Profile</h1><br>
+                <div id="userAT" class="scene_element scene_element--fadein" style="margin-left: auto;
+    margin-right: auto; width:500px; font-family: BI"></div>
+                <div id="userSubscr" class="scene_element scene_element--fadein">
+                    <p>Subscription Model<br>There are 4 different subscription options. They are listed below.
+                        Each package offers a set number of stock symbols you can add to your personal dashboard, which provides the full information for each stock.
+                        <br>
+                        1. Free — $0/month | Offers Two Stocks<br>
+                        2. Basic — $10/month | Offers Ten Stocks<br>
+                        3. Premium — $20/month | Offers Twenty Stocks<br>
+                        4. Platinum — $50/month | Offers Fifty Stocks<br>
+                    </p>
+                </div>
+                <div id="subscripButtons" class="scene_element scene_element--fadein">
+                    <p id='freeS' style="color:white" class="w3-bar-item w3-button BIwhite">Upgrade to Free</p>
+                    <p id='basicS' style="color:white" class="w3-bar-item w3-button BIwhite">Upgrade to Basic</p>
+                    <p id='premiumS' style="color:white" class="w3-bar-item w3-button BIwhite">Upgrade to Premium</p>
+                    <p id='platinumS' style="color:white" class="w3-bar-item w3-button BIwhite">Upgrade to Platinum</p>
+                </div>
+            </div>
+        </div>
+        <div id="StockTable" class="pTab" style="display:none">
+            <h1 style="text-align:center" class="h2 scene_element scene_element--fadein">{{ userData.name }}'s Stock Portolio</h1><br>
+            <div class="w3-row">
+                <!--<div class="w3-col s6 w3-center">
+                    <div id="userST" class="scene_element scene_element--fadeinleft" style="font-family: BI"></div>
+                </div>!-->
+                <div class="w3-col s12 w3-center">
+                    <div id="stockColorKey" class="scene_element scene_element--fadeinleft" style="font-family: BI"></div>
+                    <div id="x1" class="scene_element scene_element--fadeinup" style="font-size: medium; font-family: BI; width:100%"></div>
+                </div>
+            </div>
+        </div>
+        <div id="Dashboard" class="pTab" style="display: none">
+            <h1 style="text-align:center" class="h2 scene_element scene_element--fadein">{{ userData.name }}'s Dashboard</h1><br>
+            <div id="dashRows">
+            </div>
+        </div>
+        <script type="text/javascript">
+        function openDTab(name) {
+            var i;
+            var x = document.getElementsByClassName("pTab");
+            for (i = 0; i < x.length; i++) {
+                x[i].style.display = "none";
+            }
+            document.getElementById(name).style.display = "block";
+        }
+        </script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <link rel="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/js/vex.combined.min.js"></script>
@@ -35,9 +77,16 @@
         <script src="/static/js/profile/profileHandler.js"></script>
         <script src="/static/js/profile/subscriptionHandler.js"></script>
         <script type="text/javascript">
-            var userDataFromMongo = {{ userData|tojson }}
+        var userDataFromMongo = {{ userData | tojson }}
         </script>
         <script src="/static/js/profile/profile.js"></script>
+        <script src="https://www.amcharts.com/lib/4/core.js"></script>
+        <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+        <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+        <script src="/static/js/utils/hostIP.js"></script>
+        <script src="/static/js/utils/stockColorKeyTabulator.js"></script>
+        <script src="/static/js/dashboard/dashboardHandler.js"></script>
+        <script src="/static/js/dashboard/dashboard.js"></script>
     </div>
 </body>
 {% endblock %}

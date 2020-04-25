@@ -10,18 +10,20 @@ function subscripInit() {
     let premiumS_b = document.getElementById('premiumS');
     let platinumS_b = document.getElementById('platinumS');
     freeS_b.addEventListener("click", function() {
-        upgradeSubscriptionOP("FreeSubscription")
+        upgradeSubscriptionOP("Free Subscription")
     }, false);
     basicS_b.addEventListener("click", function() {
-        upgradeSubscriptionOP("BasicSubscription")
+        upgradeSubscriptionOP("Basic Subscription")
     }, false);
     premiumS_b.addEventListener("click", function() {
-        upgradeSubscriptionOP("PremiumSubscription")
+        upgradeSubscriptionOP("Premium Subscription")
     }, false);
     platinumS_b.addEventListener("click", function() {
-        upgradeSubscriptionOP("PlatinumSubscription")
+        upgradeSubscriptionOP("Platinum Subscription")
     }, false);
 }
+
+
 localStorage.setItem("userData", JSON.stringify(userDataFromMongo, null, 2));
 subscripInit()
 profileInit()

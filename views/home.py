@@ -24,13 +24,13 @@ def register():
         password = request.form["password"]
         email = request.form["email"]
         if User.objects(Q(username=username)):
-            abort(400)
+            return Response(json.dumps([]), 200)
         u = User(name=name, username=username, password=password, email=email)
         u.save()
         userData = u.to_json()
         session["userData"] = userData
         session["logged_in"] = True
-        return redirect(url_for('profile_bp.profile'))
+        return Response(userData, 200)
 
 
 @home_bp.route('/about', methods=['GET'])

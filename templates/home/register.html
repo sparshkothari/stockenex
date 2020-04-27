@@ -1,26 +1,34 @@
 {% extends "layout.html" %}
 {% block body %}
+
 <body>
     <div id="main" class="m-scene">
         <div style="text-align: center; font-family: BI; color: white;">
             <div class="scene_element scene_element--fadeinleft-wide">
                 <h1 class="h2">Register</h1>
             </div>
-            <form action="{{ url_for('home_bp.register') }}" method=post>
+            <form>
                 <fieldset style="border: 0px">
                     <p class="scene_element scene_element--fadeinright-wide">Name:</p>
-                    <input class="scene_element scene_element--fadeinleft-wide" type="text" name="name" value="Sally"><br>
+                    <input class="scene_element scene_element--fadeinleft-wide" type="text" id="name" value="Sally"><br>
                     <p class="scene_element scene_element--fadeinright-wide">Username:</p>
-                    <input class="scene_element scene_element--fadeinleft-wide" type="text" name="username" value="sally90"><br>
+                    <input class="scene_element scene_element--fadeinleft-wide" type="text" id="username" value="sally90"><br>
                     <p class="scene_element scene_element--fadeinleft-wide">Password:</p>
-                    <input class="scene_element scene_element--fadeinright-wide" type="text" name="password" value="00"><br>
+                    <input class="scene_element scene_element--fadeinright-wide" type="text" id="password" value="00"><br>
                     <p class="scene_element scene_element--fadeinright-wide">Email:</p>
-                    <input class="scene_element scene_element--fadeinleft-wide" type="text" name="email" value="s@gmail.com"><br><br>
-                    <input class="scene_element scene_element--fadeinup" type="submit" id="submit"  value="Register">
+                    <input class="scene_element scene_element--fadeinleft-wide" type="text" id="email" value="s@gmail.com"><br><br>
+                    <input class="scene_element scene_element--fadeinup" type="button" id="submit" value="Register">
                 </fieldset>
             </form>
             <!--<input type="button" id="deleteAccount" value="delete account (no email required)"/>!-->
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/js/vex.combined.min.js"></script>
+    <script>
+    vex.defaultOptions.className = 'vex-theme-os'
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex-theme-os.min.css" />
+    <script src="/static/js/home/register.js"></script>
 </body>
 {% endblock %}

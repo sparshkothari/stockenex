@@ -355,7 +355,7 @@ function stackedColumnChart(data_, divName) {
                 }
             }
             series.columns.template.alwaysShowTooltip = true
-
+            series.tooltip.hitTest = false;
             //series.columns.template.tooltipText = "[bold]{name}[/]\n[font-size:14px]{categoryX}: {valueY}";
         }
 

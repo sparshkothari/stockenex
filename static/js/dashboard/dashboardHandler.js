@@ -185,7 +185,7 @@ function dashboardStocks() {
 }
 
 
-function variableWidthCurvedColumnChart(data_, divName) {
+/*function variableWidthCurvedColumnChart(data_, divName) {
     // Themes begin
     am4core.useTheme(am4themes_animated);
     // Themes end
@@ -208,7 +208,7 @@ function variableWidthCurvedColumnChart(data_, divName) {
         "value1": 525,
         "value2": 325,
         "value3": 225
-    }];*/
+    }];
 
     chart.data = data_;
 
@@ -339,6 +339,327 @@ function variableWidthCurvedColumnChart(data_, divName) {
 
 }
 
+function verticalLayeredColumnChart(data_, divName) {
+
+
+    // Themes begin
+    am4core.useTheme(am4themes_animated);
+    // Themes end
+
+    // Create chart instance
+    var chart = am4core.create(divName, am4charts.XYChart);
+
+    // Add percent sign to all numbers
+    //chart.numberFormatter.numberFormat = "#.#'%'";
+
+    // Add data
+    /*chart.data = [{
+        "country": "USA",
+        "year2004": 3.5,
+        "year2005": 4.2
+    }, {
+        "country": "UK",
+        "year2004": 1.7,
+        "year2005": 3.1
+    }, {
+        "country": "Canada",
+        "year2004": 2.8,
+        "year2005": 2.9
+    }, {
+        "country": "Japan",
+        "year2004": 2.6,
+        "year2005": 2.3
+    }, {
+        "country": "France",
+        "year2004": 1.4,
+        "year2005": 2.1
+    }, {
+        "country": "Brazil",
+        "year2004": 2.6,
+        "year2005": 4.9
+    }];
+
+    let s = []
+    s.push(data_[0])
+    chart.data = s
+
+    chart.colors.list = [
+        am4core.color("#F664AF"),
+        am4core.color("#FFA500"),
+        am4core.color("#005f00"),
+        am4core.color("#EE204D"),
+        am4core.color("#000000"),
+    ];
+
+    // Create axes
+    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "symbol";
+    categoryAxis.renderer.grid.template.location = 0;
+    //categoryAxis.renderer.minGridDistance = 30;
+    categoryAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
+    //categoryAxis.renderer.cellStartLocation = 0.2;
+    //categoryAxis.renderer.cellEndLocation = 0.8;
+
+
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.title.text = "$(US)";
+    valueAxis.title.fill = am4core.color("#FFFFFF");
+    valueAxis.title.fontWeight = 800;
+    valueAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
+
+    // Create series
+    var series = chart.series.push(new am4charts.ColumnSeries());
+    series.dataFields.valueY = "exwh";
+    series.dataFields.categoryX = "symbol";
+    series.clustered = false;
+    series.tooltipText = "exwh {valueY}[/]";
+    series.tooltip.getFillFromObject = false;
+    series.tooltip.background.fill = am4core.color("#F664AF");
+
+    var series2 = chart.series.push(new am4charts.ColumnSeries());
+    series2.dataFields.valueY = "exwl";
+    series2.dataFields.categoryX = "symbol";
+    series2.clustered = false;
+    //series2.columns.template.width = am4core.percent(50);
+    series2.tooltipText = "exwl {valueY}[/]";
+    series2.tooltip.getFillFromObject = false;
+    series2.tooltip.background.fill = am4core.color("#F664AF");
+
+    var series3 = chart.series.push(new am4charts.ColumnSeries());
+    series3.dataFields.valueY = "enwh";
+    series3.dataFields.categoryX = "symbol";
+    series3.clustered = false;
+    //series3.columns.template.width = am4core.percent(50);
+    series3.tooltipText = "enwh {valueY}[/]";
+    series3.tooltip.getFillFromObject = false;
+    series3.tooltip.background.fill = am4core.color("#005f00");
+
+    var series4 = chart.series.push(new am4charts.ColumnSeries());
+    series4.dataFields.valueY = "enwl";
+    series4.dataFields.categoryX = "symbol";
+    series4.clustered = false;
+    //series4.columns.template.width = am4core.percent(50);
+    series4.tooltipText = "enwl {valueY}[/]";
+    series4.tooltip.getFillFromObject = false;
+    series4.tooltip.background.fill = am4core.color("#005f00");
+
+    var series5 = chart.series.push(new am4charts.ColumnSeries());
+    series5.dataFields.valueY = "slw";
+    series5.dataFields.categoryX = "symbol";
+    series5.clustered = false;
+    //series5.columns.template.width = am4core.percent(50);
+    series5.tooltipText = "slw {valueY}[/]";
+    series5.tooltip.getFillFromObject = false;
+    series5.tooltip.background.fill = am4core.color("#EE204D");
+
+
+    chart.cursor = new am4charts.XYCursor();
+    chart.cursor.lineX.disabled = true;
+    chart.cursor.lineY.disabled = true;
+
+    //var scrollbarY = new am4core.Scrollbar();
+    //var scrollbarX = new am4core.Scrollbar();
+
+    //chart.scrollbarY = scrollbarY;
+    //chart.scrollbarX = scrollbarX;
+
+    series.columns.template.events.on("parentset", function(event) {
+        event.target.zIndex = valueAxis.max - event.target.dataItem.valueY;
+    })
+
+    series2.columns.template.events.on("parentset", function(event) {
+        event.target.parent = series.columnsContainer;
+        event.target.zIndex = valueAxis.max - event.target.dataItem.valueY;
+    })
+
+    series3.columns.template.events.on("parentset", function(event) {
+        event.target.parent = series.columnsContainer;
+        event.target.zIndex = valueAxis.max - event.target.dataItem.valueY;
+    })
+
+    series4.columns.template.events.on("parentset", function(event) {
+        event.target.parent = series.columnsContainer;
+        event.target.zIndex = valueAxis.max - event.target.dataItem.valueY;
+    })
+
+    series5.columns.template.events.on("parentset", function(event) {
+        event.target.parent = series.columnsContainer;
+        event.target.zIndex = valueAxis.max - event.target.dataItem.valueY;
+    })
+
+}
+*/
+
+
+function stackedColumnChart(data_, divName) {
+
+    // Themes begin
+    am4core.useTheme(am4themes_animated);
+    // Themes end
+
+    // Create chart instance
+    var chart = am4core.create(divName, am4charts.XYChart);
+
+    //chart.legend = new am4charts.Legend();
+    //chart.legend.position = "right";
+
+    var exwhHigh = false;
+    data__ = data_[0]
+    if (data__["slwh"] < data__["exwh"]) {
+        //MCD,DarkGreen,Close=164.01  (LCB0L[ Enw= (144.92-153.73) Exw= (176.09-199.15) Slw= (134.10-134.10)  ])
+        exwhHigh = true;
+
+        data___ = [{
+            "symbol": data__["symbol"],
+            "base": data__["slwh"],
+            "slwp": data__["enwl"] - data__["slwh"],
+            "enw": data__["enwh"] - data__["enwl"],
+            "gap": data__["exwl"] - data__["enwh"],
+            "exw": data__["exwh"] - data__["exwl"]
+        }];
+        chart.colors.list = [
+            am4core.color("#0000ff"),
+            am4core.color("#EE204D"),
+            am4core.color("#005f00"),
+            am4core.color("#FFA500"),
+            am4core.color("#F664AF"),
+        ];
+    } else {
+        //PG,Lime,Close=110.17  (SS0L[ Enw= (111.55-105.96) Exw= (91.76-77.12) Slw= (116.88-123.70)  ])
+        data___ = [{
+            "symbol": data__["symbol"],
+            "base": data__["exwh"],
+            "exw": data__["exwl"] - data__["exwh"],
+            "gap1": data__["enwh"] - data__["exwl"],
+            "enw": data__["enwl"] - data__["enwh"],
+            "gap2": data__["slwl"] - data__["enwl"],
+            "slwp": data__["slwh"] - data__["slwl"]
+        }];
+
+        chart.colors.list = [
+            am4core.color("#0000ff"),
+            am4core.color("#F664AF"),
+            am4core.color("#FFA500"),
+            am4core.color("#005f00"),
+            am4core.color("#FFA500"),
+            am4core.color("#EE204D"),
+
+        ];
+
+    }
+    console.log(data___)
+    chart.data = data___
+
+
+    // Create axes
+    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "symbol";
+    categoryAxis.renderer.grid.template.location = 0;
+    categoryAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
+
+
+
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.min = data___[0]["base"];
+    valueAxis.title.text = "$(US)";
+    valueAxis.title.fill = am4core.color("#FFFFFF");
+    valueAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
+    valueAxis.renderer.inside = true;
+    valueAxis.renderer.labels.template.disabled = true;
+
+
+    var i;
+    i = 0;
+    // Create series
+    function createSeries(field, name) {
+
+        // Set up series
+        var series = chart.series.push(new am4charts.ColumnSeries());
+        series.name = name;
+        series.dataFields.valueY = field;
+        series.dataFields.categoryX = "symbol";
+        series.sequencedInterpolation = true;
+
+        // Make it stacked
+        series.stacked = true;
+
+        // Configure columns
+        series.columns.template.width = am4core.percent(60);
+        if (i > 0) {
+            if (exwhHigh) {
+                if (i == 1) {
+                    series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.slwh + "[/]\nHigh: " + data__.enwl;
+                } else if (i == 2) {
+                    series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.enwl + "[/]\nHigh: " + data__.enwh;
+                    series.tooltip.pointerOrientation = "left"
+                } else if (i == 3) {
+                    //do nothing
+                } else if (i == 4) {
+                    series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.exwl + "[/]\nHigh: " + data__.exwh;
+                }
+            } else {
+                if (i == 1) {
+                    series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.exwl + "[/]\nHigh: " + data__.exwh;
+                } else if (i == 2) {
+                    //do nothing
+                } else if (i == 3) {
+                    //do nothing
+                    series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.enwl + "[/]\nHigh: " + data__.enwh;
+                    series.tooltip.pointerOrientation = "left";
+
+                } else if (i == 4) {
+                    //do nothing
+                } else if (i == 5) {
+                    series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.slwl + "[/]\nHigh: " + data__.slwh;
+
+                }
+            }
+            //series.columns.template.alwaysShowTooltip = true
+
+            //series.columns.template.tooltipText = "[bold]{name}[/]\n[font-size:14px]{categoryX}: {valueY}";
+        }
+
+        // Add label
+        //var labelBullet = series.bullets.push(new am4charts.LabelBullet());
+        //labelBullet.label.text = "{name}"/*"[bold]{name}[/]\n" +  //data__.slw + "-" + data__.enwl;
+        //labelBullet.locationY = 0.5;
+        //labelBullet.label.hideOversized = true;
+
+        i = i + 1;
+        return series;
+    }
+
+    createSeries("base", "")
+
+    if (exwhHigh) {
+        createSeries("slwp", "SLW")
+        createSeries("enw", "ENW")
+        createSeries("gap", "gap")
+        createSeries("exw", "EXW")
+    } else {
+        createSeries("exw", "EXW")
+        createSeries("gap1", "gap")
+        createSeries("enw", "ENW")
+        createSeries("gap2", "gap")
+        createSeries("slwp", "SLW")
+    }
+    //createSeries("europe", "Europe");
+    //createSeries("namerica", "North America");
+    //createSeries("asia", "Asia-Pacific");
+    //createSeries("lamerica", "Latin America");
+    //createSeries("meast", "Middle-East");
+    //createSeries("africa", "Africa");
+
+    chart.cursor = new am4charts.XYCursor();
+
+    //Legend
+    chart.legend = new am4charts.Legend();
+    chart.legend.position = "right";
+    chart.legend.labels.template.fill = am4core.color("#FFFFFF");
+    chart.legend.labels.template.textDecoration = "none";
+    chart.legend.valueLabels.template.textDecoration = "none";
+}
+
 
 function dashCharts() {
     let symbols;
@@ -369,10 +690,13 @@ function dashCharts() {
                     u.exwl = parseFloat(exw.split("-")[0])
                     u.exwh = parseFloat(exw.split("-")[1])
 
-                    u.slw = parseFloat(slw.split("-")[0])
+                    u.slwl = parseFloat(slw.split("-")[0])
+                    u.slwh = parseFloat(slw.split("-")[1])
                     let tr = []
                     tr.push(u)
-                    variableWidthCurvedColumnChart(tr, dashDivElementNameArray[i]);
+                    //variableWidthCurvedColumnChart(tr, dashDivElementNameArray[i]);
+                    //verticalLayeredColumnChart(tr, dashDivElementNameArray[i]);
+                    stackedColumnChart(tr, dashDivElementNameArray[i])
                     i = i + 1
                     //y.push(u)
                 }
@@ -390,32 +714,42 @@ function createDashDivElements() {
     let val = 43
     let dash = document.getElementById("dashRows");
     while (i < val) {
-        if (i % 2 == 0) {
+        if (i % 3 == 0) {
             let y = document.createElement("div");
             y.classList = "w3-row";
             let u = document.createElement("div");
             let q = document.createElement("div");
-            u.classList = "w3-col s6 w3-center scene_element scene_element--fadeinup";
-            q.classList = "w3-col s6 w3-center scene_element scene_element--fadeinup";
+            let b = document.createElement("div");
+
+            u.classList = "w3-col s4 w3-center scene_element scene_element--fadeinup";
+            q.classList = "w3-col s4 w3-center scene_element scene_element--fadeinup";
+            b.classList = "w3-col s4 w3-center scene_element scene_element--fadeinup";
+
 
             divRowName = "dashDivRow" + i;
             divColName1 = "dashDivCol" + (i + 1);
             divColName2 = "dashDivCol" + (i + 2);
+            divColName3 = "dashDivCol" + (i + 3);
+
 
             y.id = divRowName;
             u.id = divColName1;
             q.id = divColName2;
+            b.id = divColName3;
 
             u.style.height = "400px"
             q.style.height = "400px"
+            b.style.height = "400px"
 
             y.appendChild(u);
             y.appendChild(q);
+            y.appendChild(b);
             dash.appendChild(y);
 
             o.push(divColName1);
             o.push(divColName2);
-            i = i + 2;
+            o.push(divColName3);
+            i = i + 3;
         }
     }
     return o;

@@ -4,5 +4,5 @@ function dashboardInit() {
     dashboardStocks()
     stockColorKeyTabulator("stockColorKey")
     dashboardProfile()
+    dashCharts()
 }
-dashboardInit()

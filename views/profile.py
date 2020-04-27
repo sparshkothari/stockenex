@@ -30,3 +30,9 @@ def subscription():
     userData = u.to_json()
     session["userData"] = userData
     return Response(userData, 200)
+
+@profile_bp.route('/user', methods=['GET'])
+def user():
+    if not session["logged_in"]:
+        abort(401)
+    return Response(session["userData"], 200)

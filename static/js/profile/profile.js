@@ -1,9 +1,11 @@
 function profileInit() {
     profileTabulator()
 }
+
 function upgradeSubscriptionOP(subscriptionType) {
     subscriptionHandler(subscriptionType);
 }
+
 function subscripInit() {
     let freeS_b = document.getElementById('freeS');
     let basicS_b = document.getElementById('basicS');
@@ -24,6 +26,10 @@ function subscripInit() {
 }
 
 
-localStorage.setItem("userData", JSON.stringify(userDataFromMongo, null, 2));
-subscripInit()
-profileInit()
+$.get("/user")
+    .done(function(data, status) {
+        localStorage.setItem("userData", JSON.stringify(data, null, 2))
+        subscripInit()
+        profileInit()
+        dashboardInit()
+    });

@@ -6,7 +6,7 @@ function stockColorKeyTabulator(divId) {
     let sctColumns = [ //Define Table Columns
         {
             title: "Key",
-            field: "Key",
+            field: "key",
             hozAlign: "center",
             formatter: function(cell) {
                 cell.getElement().style.height = "25px"
@@ -15,32 +15,22 @@ function stockColorKeyTabulator(divId) {
         },
         {
             title: "Value",
-            field: "Value",
+            field: "value",
             hozAlign: "center",
             formatter: function(cell) {
                 cell.getElement().style.height = "25px"
                 return cell.getValue()
-            }
-        },
-        {
-            title: "Color",
-            field: "Color",
-            hozAlign: "center",
-            formatter: function(cell) {
-                cell.getElement().style.height = "25px"
-                return cell.getValue()
-
             }
         },
     ];
     let sctData = [
-        { Key: "Navy Blue", Value: "Short Entry Region", Color: "#000080" },
-        { Key: "Dark Green", Value: "Long Entry Region", Color: "#005f00" },
-        { Key: "Lime", Value: "Low Entry-Level Day", Color: "#00ff00" },
-        { Key: "Magenta", Value: "Profit Level 1", Color: "#F664AF" },
-        { Key: "Purple", Value: "Profit Level 2", Color: "#800080" },
-        { Key: "Yellow", Value: "Breakout Day", Color: "#FCE883" },
-        { Key: "Red", Value: "No Entry", Color: "#EE204D" },
+        { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
+        { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
+        { key: "Lime", value: "Low Entry-Level Day", color: "#00FF00" },
+        { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
+        { key: "Purple", value: "Profit Level 2", color: "#800080" },
+        { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
+        { key: "Red", value: "No Entry", color: "#EE204D" },
     ];
     var SCT = new Tabulator("#" + divId, {
         tooltips: function(cell) {
@@ -50,9 +40,10 @@ function stockColorKeyTabulator(divId) {
         data: sctData,
         layout: "fitColumns",
         rowFormatter: function(row) {
-            let c = row.getCell("Color").getValue();
+            let val = row.getCell("value").getValue();
+            let c = sctData.find(element => element["value"] == val)["color"].toUpperCase();
             row.getElement().style.backgroundColor = c;
-            if (c == "#000080" || c == "#005f00" || c == "#800080") {
+            if (c == "#000080" || c == "#005F00" || c == "#800080") {
                 row.getElement().style.color = "white";
             }
         },

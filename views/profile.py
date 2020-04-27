@@ -3,6 +3,7 @@ from werkzeug.utils import redirect
 
 from flask import Blueprint, request, render_template, url_for, session, flash
 from models import User
+from models import Stock
 from werkzeug.wrappers.response import Response
 from mongoengine import *
 import json
@@ -36,3 +37,26 @@ def user():
     if not session["logged_in"]:
         abort(401)
     return Response(session["userData"], 200)
+
+
+@profile_bp.route('/symbol', methods=['POST'])
+def symbol():
+    if not session["logged_in"]:
+        abort(401)
+    userData = json.loads(session["userData"])
+    u = User.objects(Q(username=userData["username"]) & Q(password=userData["password"])).first()
+    symbol_ = request.form["symbol"]
+    operation = request.form["operation"]
+    if operation == "add":
+        u.symbols.append(symbol_)
+    elif operation == "remove":
+        u.symbols.remove(symbol_)
+    u.save()
+    userData = u.to_json()
+    session["userData"] = userData
+    return Response(userData, 200)
+
+
+@profile_bp.route('/stock', methods=['GET'])
+def stock():
+    return Response(Stock.objects.to_json(), 200)

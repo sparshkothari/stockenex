@@ -50,7 +50,6 @@ function stockColorKeyTabulator(divId) {
         columns: sctColumns,
     });
     SCT.redraw()
-    SCT.hideColumn("Color")
 }
 
 

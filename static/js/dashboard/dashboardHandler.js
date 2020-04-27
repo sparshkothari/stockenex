@@ -42,7 +42,6 @@ function dashboardStocksTabulator(data) {
 
         this.returnValue = function(color) {
             //debugger;
-            console.log(color)
             return i.find(element => element["color"] == color.toUpperCase())["value"];
         }
 
@@ -289,7 +288,6 @@ function stackedColumnChart(data_, divName) {
         ];
 
     }
-    console.log(data___)
     chart.data = data___
 
 
@@ -442,14 +440,14 @@ function getDashObject(item) {
 }
 
 
-function createDashDivElements() {
-    let o = []
-    let rowCount = 15
-    let columnCount = 3
-    let cellCount = rowCount * columnCount
+function createDashDivElements(length) {
+    let o = [];
+    //let rowCount = 15
+    let columnCount = 3;
+    let cellCount = length;//rowCount * columnCount
     let dash = document.getElementById("dashRows");
     dash.innerHTML = "";
-    for (let i = 0; i < cellCount; i++) {
+    for (let i = 0; i < cellCount; i = i + columnCount) {
 
         if (i % columnCount == 0) {
             let y = document.createElement("div");
@@ -469,7 +467,6 @@ function createDashDivElements() {
 
             }
         }
-        i = i + columnCount;
     }
     return o;
 }

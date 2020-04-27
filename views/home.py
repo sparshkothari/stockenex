@@ -49,13 +49,14 @@ def login():
     if request.method == 'POST':
         u = User.objects(Q(username=request.form['username']) & Q(password=request.form['password'])).first()
         if not u:
-            error = 'Invalid username or password'
+            return Response(json.dumps([]), 401)
         else:
             session['logged_in'] = True
-            session["userData"] = u.to_json()
-            flash('You are logged in')
-            return redirect(url_for('profile_bp.profile'))
-    return render_template('home/login.html', error=error)
+            userData = u.to_json()
+            session["userData"] = userData
+            #flash('You are logged in')
+            return Response(userData, 200)
+    return render_template('home/login.html')
 
 
 @home_bp.route('/logout')

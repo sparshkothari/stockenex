@@ -1,24 +1,20 @@
-var Register = {
+var Login = {
     init : function(){
-        this.register();
+        this.login();
     },
-    register: function() {
+    login: function() {
         document.getElementById("submit").addEventListener("click", function() {
-            $.post("/register",
-
+            $.post("/login",
                     {
-                        name: document.getElementById("name").value,
                         username: document.getElementById("username").value,
                         password: document.getElementById("password").value,
-                        email: document.getElementById("email").value
-
                     }
                 )
                 .done(function(data, status) {
                     vex.dialog.buttons.YES.text = "Okay";
 
                     vex.dialog.alert({
-                        message: 'You successfully created an account!',
+                        message: 'You successfully logged in!',
                         callback: function(value) {
                             window.location.href = "/profile";
 
@@ -29,7 +25,7 @@ var Register = {
                 .fail(function() {
                     //console.log("fail")
                     vex.dialog.buttons.YES.text = "Okay";
-                    vex.dialog.alert('The chosen username is already registered.');
+                    vex.dialog.alert('Username or password is incorrect.');
 
                 });
 
@@ -42,4 +38,4 @@ var Register = {
 
 }
 
-Register.init()
+Login.init()

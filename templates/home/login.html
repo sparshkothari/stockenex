@@ -1,19 +1,27 @@
 {% extends "layout.html" %}
 {% block body %}
+
 <body>
     <div id="main" class="m-scene">
         <div class="w3-container w3-center" style="color:white; font-family: BI">
             <h1 class="h2 scene_element scene_element--fadeinleft-wide"> Login </h1>
-            <form action="{{ url_for('home_bp.login') }}" method=post>
+            <form>
                 <fieldset style="border: 0px">
                     <p class="scene_element scene_element--fadeinright-wide">Username:</p>
                     <input class="scene_element scene_element--fadeinleft-wide" type="text" id="username" name="username" value="sally90"><br>
                     <p class="scene_element scene_element--fadeinleft-wide">Password:</p>
                     <input class="scene_element scene_element--fadeinright-wide" type="text" id="password" name="password" value="00"><br><br>
-                    <input class="scene_element scene_element--fadeinright-wide" type="submit" id="submit"  value="Login">
+                    <input class="scene_element scene_element--fadeinup" type="button" id="submit" value="Login">
                 </fieldset>
             </form>
         </div>
     </div>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/js/vex.combined.min.js"></script>
+<script>
+vex.defaultOptions.className = 'vex-theme-os'
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex-theme-os.min.css" />
+<script src="/static/js/login.js"></script>
 {% endblock %}

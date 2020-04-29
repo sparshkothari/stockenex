@@ -12,7 +12,7 @@ var ProfileBase = {
     },
 
 
-    profile : {
+    profile: {
         init: function() {
             this.profileTabulator()
         },
@@ -64,7 +64,7 @@ var ProfileBase = {
         }
     },
 
-    subscrip : {
+    subscrip: {
 
         init: function() {
             let freeS_b = document.getElementById('freeS');
@@ -104,7 +104,7 @@ var ProfileBase = {
 
 
     //userStocksTabulator.js
-    dashboard : {
+    dashboard: {
 
         init: function() {
 
@@ -148,7 +148,7 @@ var ProfileBase = {
                     { key: "Purple", value: "Profit Level 2", color: "#800080" },
                     { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
                     { key: "Red", value: "No Entry", color: "#EE204D" },
-                    { key: "Light Blue", value: "unknownLightBlue", color: "#1F75FE" }
+                    { key: "Light Blue", value: "Short Entry Region", color: "#1F75FE" }
                 ]
 
                 this.returnColor = function(value) {
@@ -279,7 +279,7 @@ var ProfileBase = {
                         let y = document.createElement('div');
                         y.id = "individualChart";
                         y.classList.add("w3-animate-opacity");
-                        y.style = "text-align:center; animation-duration:6s; width:33%; height: 600px; margin-left: auto; margin-right: auto";
+                        y.style = "text-align:center; animation-duration:3s; width:33%; height: 600px; margin-left: auto; margin-right: auto";
                         z.appendChild(y);
                         let sy = cell.getRow().getCell("symbol").getValue();
                         let val = cell.getRow().getCell("value").getValue();
@@ -289,7 +289,7 @@ var ProfileBase = {
                         let tr = [];
                         let obj = ProfileBase.dashboard.getDashObject(item);
                         tr.push(obj);
-                        ProfileBase.dashboard.stackedColumnChart(tr, "individualChart")
+                        ProfileBase.dashboard.axisRangeChart(tr, "individualChart")
                         openDTab("IndividualDashboard")
                     }
                 },
@@ -342,6 +342,360 @@ var ProfileBase = {
                     ProfileBase.dashboard.dashboardStocksTabulator(data_);
                 });
         },
+        
+        axisRangeChart: function(data_, divName) {
+
+            // Create chart instance
+            var chart = am4core.create(divName, am4charts.XYChart);
+
+            dataO_ = data_[0]
+
+            let exwHigh = true;
+            if (dataO_["slwh"] > dataO_["exwh"]) {
+                exwHigh = false;
+            }
+            chart.data = data_
+            chart.colors.list = [am4core.color("#0000FF")];
+
+            // Create axes
+            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "symbol";
+            categoryAxis.renderer.grid.template.location = 0;
+            categoryAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
+
+
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
+            //valueAxis.renderer.opposite = true
+
+            if (exwHigh) {
+                valueAxis.min = dataO_["slwl"];
+                valueAxis.max = dataO_["exwh"];
+            } else {
+                valueAxis.min = dataO_["exwh"];
+                valueAxis.max = dataO_["slwl"];
+            }
+
+            // Create series
+            var series = chart.series.push(new am4charts.ColumnSeries());
+            if (exwHigh) {
+                series.dataFields.valueY = "exwh";
+            } else {
+                series.dataFields.valueY = "slwl"
+            }
+            series.dataFields.categoryX = "symbol";
+            //series.name = "Sales";
+
+            /*       chart.colors.list = [
+                        am4core.color("#0000ff"),
+                        am4core.color("#EE204D"),
+                        am4core.color("#005f00"),
+                        am4core.color("#FFA500"),
+                        am4core.color("#F664AF"),
+                    ];*/
+            // Create value axis range
+
+            let r1v;
+            let r1ev;
+
+            let r2v;
+            let r2ev;
+
+            let r3v;
+            let r3ev;
+
+            let r4v;
+            let r4ev;
+
+            if (exwHigh) {
+                r1v = dataO_["slwh"]
+                r1ev = dataO_["enwl"]
+
+                r2v = dataO_["enwl"]
+                r2ev = dataO_["enwh"]
+
+                r3v = dataO_["exwl"]
+                r3ev = dataO_["exwh"]
+
+                r4v = r2ev
+                r4ev = r3v
+
+                //r4v = data_[]
+            } else {
+                r1v = dataO_["enwl"]
+                r1ev = dataO_["slwl"]
+
+                r2v = dataO_["enwh"]
+                r2ev = dataO_["enwl"]
+
+                r3v = dataO_["exwh"]
+                r3ev = dataO_["exwl"]
+
+                r4v = r2v
+                r4ev = r3ev
+
+            }
+
+            let rClose = dataO_["close"]
+
+            var range = valueAxis.createSeriesRange(series);
+            range.value = r1v;
+            range.endValue = r1ev;
+            range.contents.stroke = am4core.color("#EE204D");
+            range.contents.fill = range.contents.stroke;
+            //range.axisFill.tooltip = new am4core.Tooltip();
+            //range.axisFill.tooltipText = "Slw[/]\n" + "Low: " + r1v + "[/]\nHigh: " + r1ev
+            //range.axisFill.interactionsEnabled = true;
+            //range.axisFill.isMeasured = true;
+            //range.axisFill.alwaysShowTooltip = true;
+            //range.axisFill.tooltip.getFillFromObject = false;
+            //range.axisFill.tooltip.background.fill = range.contents.stroke;
+            //range.axisFill.tooltip.background.cornerRadius = 20;
+            //range.axisFill.tooltip.background.strokeOpacity = 0;
+            //range.axisFill.tooltip.pointerOrientation = "vertical";
+            //range.axisFill.tooltip.label.minWidth = 40;
+            //range.axisFill.tooltip.label.minHeight = 40;
+            //range.axisFill.tooltip.label.textAlign = "middle";
+            //range.axisFill.tooltip.label.textValign = "middle";
+            //range.axisFill.tooltip.background.stroke = am4core.color("#000000")
+            //range.axisFill.tooltip.background.strokeWidth = 5;
+
+            // Create value axis range
+            var range2 = valueAxis.createSeriesRange(series);
+            range2.value = r2v;
+            range2.endValue = r2ev;
+            range2.contents.stroke = am4core.color("#005f00");
+            range2.contents.fill = range2.contents.stroke;
+            //range2.axisFill.tooltip = new am4core.Tooltip();
+            //range2.axisFill.tooltipText = "Enw[/]\n" + "Low: " + r2v + "[/]\nHigh: " + r2ev
+            //range2.axisFill.interactionsEnabled = true;
+            //range2.axisFill.isMeasured = true;
+            //range2.axisFill.alwaysShowTooltip = true;
+            //range2.axisFill.tooltip.getFillFromObject = false;
+            //range2.axisFill.tooltip.background.fill = range2.contents.stroke;
+
+
+            // Create value axis range
+            var range3 = valueAxis.createSeriesRange(series);
+            range3.value = r3v;
+            range3.endValue = r3ev;
+            range3.contents.stroke = am4core.color("#F664AF");
+            range3.contents.fill = range3.contents.stroke;
+            //range3.axisFill.tooltip = new am4core.Tooltip();
+            //range3.axisFill.tooltipText = "Exw[/]\n" + "Low: " + r3v + "[/]\nHigh: " + r3ev
+            //range3.axisFill.interactionsEnabled = true;
+            //range3.axisFill.isMeasured = true;
+            //range3.axisFill.alwaysShowTooltip = true;
+            //range3.axisFill.tooltip.getFillFromObject = false;
+            //range3.axisFill.tooltip.background.fill = range3.contents.stroke;
+
+            // Create value axis range
+
+            //range3.axisFill.tooltip = new am4core.Tooltip();
+            //range3.axisFill.tooltipText = "Exw[/]\n" + "Low: " + r3v + "[/]\nHigh: " + r3ev
+            //range3.axisFill.interactionsEnabled = true;
+            //range3.axisFill.isMeasured = true;
+            //range3.axisFill.alwaysShowTooltip = true;
+            //range3.axisFill.tooltip.getFillFromObject = false;
+            //range3.axisFill.tooltip.background.fill = range3.contents.stroke;
+
+            var range4 = valueAxis.createSeriesRange(series);
+            range4.value = r4v;
+            range4.endValue = r4ev;
+            range4.contents.stroke = am4core.color("#FFA500");
+            range4.contents.fill = range4.contents.stroke;
+
+
+            var range5 = valueAxis.axisRanges.create();
+            range5.value = rClose;
+            range5.grid.stroke = am4core.color("#000000");
+            range5.grid.strokeWidth = 5;
+            range5.grid.strokeOpacity = 1;
+            range5.grid.above = true
+            //range4.label.text = "D-Close: " + rClose;
+            //range4.label.fill = am4core.color("#FFFFFF");
+            //range4.grid.disabled = true;
+            //range4.bullet = new am4core.Circle();
+            //range4.bullet.width = 100;
+            //range4.bullet.height = 100;
+            //var colorSet = new am4core.ColorSet()
+            //range4.bullet.fill = colorSet.next();
+            //range4.bullet.horizontalCenter = "middle";
+            //range4.bullet.dx = 170
+            //range4.label.dx = -25
+            //range4.label.inside = true;
+            //range4.label.align = "center";
+            //range4.label.position = "left"
+            //range4.label.verticalCenter = "bottom";
+            //range4.label.horizontalCenter = "left";
+
+            chart.legend = new am4charts.Legend();
+            //chart.legend.parent = chart.chartContainer;
+            chart.legend.background.fill = am4core.color("#0000FF");
+            chart.legend.labels.template.fill = am4core.color("#FFFFFF")
+            //chart.legend.background.fillOpacity = 0.05;
+            chart.legend.width = 120;
+            chart.legend.data = [{
+                "name": "Slw: " + dataO_["slwl"],
+                "fill": range.contents.stroke
+            }, {
+                "name": "Enw[/]\n" + "Low: " + r2v + "[/]\nHigh: " + r2ev,
+                "fill": range2.contents.stroke
+            }, {
+                "name": "Exw[/]\n" + "Low: " + r3v + "[/]\nHigh: " + r3ev,
+                "fill": range3.contents.stroke
+            }, {
+                "name": "Close: " + rClose,
+                "fill": "#000000"
+            }];
+
+            chart.legend.position = "top";
+            chart.legend.contentAlign = "center";
+            chart.width = am4core.percent(100);
+
+            //chart.align = "right"
+            //chart.valign = "top"
+        },
+
+
+        dashCharts: function() {
+            let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
+            var dashDivElementNameArray = this.createDashDivElements(symbols.length);
+            $.get("/stock")
+                .done(function(data, status) {
+                    let y = []
+                    let i = 0;
+                    for (let item of data) {
+                        if (symbols.includes(item["symbol"])) {
+                            let u = ProfileBase.dashboard.getDashObject(item)
+                            let tr = []
+                            tr.push(u)
+                            //variableWidthCurvedColumnChart(tr, dashDivElementNameArray[i]);
+                            //verticalLayeredColumnChart(tr, dashDivElementNameArray[i]);
+                            //ProfileBase.dashboard.stackedColumnChart(tr, dashDivElementNameArray[i])
+                            ProfileBase.dashboard.axisRangeChart(tr, dashDivElementNameArray[i])
+
+                            i = i + 1
+                            //y.push(u)
+                        }
+                    }
+                    //horizontalLayeredColumnChart(y)
+                    //verticalLayeredColumnChart(y)
+                    //variableWidthCurvedColumnChart(y)
+                });
+        },
+
+        getDashObject: function(item) {
+            let u = new Object()
+            u.symbol = item["symbol"]
+            let v = item["value"]
+            let enw = v.split("Enw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
+            let exw = v.split("Exw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
+            let slw = v.split("Slw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
+            let close = v.split("Close=")[1].split(" ")[0]
+
+            u.enwl = parseFloat(enw.split("-")[0])
+            u.enwh = parseFloat(enw.split("-")[1])
+
+            u.exwl = parseFloat(exw.split("-")[0])
+            u.exwh = parseFloat(exw.split("-")[1])
+
+            u.slwl = parseFloat(slw.split("-")[0])
+            u.slwh = parseFloat(slw.split("-")[1])
+
+            u.close = close;
+
+            return u;
+        },
+
+
+        createDashDivElements: function(length) {
+            let o = [];
+            //let rowCount = 15
+            let columnCount = 3;
+            let cellCount = length; //rowCount * columnCount
+            let dash = document.getElementById("dashRows");
+            dash.innerHTML = "";
+            for (let i = 0; i < cellCount; i = i + columnCount) {
+
+                if (i % columnCount == 0) {
+                    let y = document.createElement("div");
+                    divRowName = "dashDivRow" + i;
+                    y.id = divRowName;
+                    y.classList = "w3-row";
+                    dash.appendChild(y);
+
+                    for (let j = 0; j < columnCount; j++) {
+                        let u = document.createElement("div");
+                        u.classList = "w3-col s4 w3-center";
+                        divColName = "dashDivCol" + (i + j);
+                        u.id = divColName;
+                        u.style.height = "600px"
+                        y.appendChild(u);
+                        o.push(divColName);
+
+                    }
+                }
+            }
+            return o;
+        },
+
+        stockColorKey: function(divId) {
+            let sctColumns = [ //Define Table Columns
+                {
+                    title: "Key",
+                    field: "key",
+                    hozAlign: "center",
+                    formatter: function(cell) {
+                        cell.getElement().style.height = "25px"
+                        return cell.getValue()
+                    }
+                },
+                {
+                    title: "Value",
+                    field: "value",
+                    hozAlign: "center",
+                    formatter: function(cell) {
+                        cell.getElement().style.height = "25px"
+                        return cell.getValue()
+                    }
+                },
+            ];
+            let sctData = [
+                { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
+                { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
+                { key: "Lime", value: "Low Entry-Level Day", color: "#00FF00" },
+                { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
+                { key: "Purple", value: "Profit Level 2", color: "#800080" },
+                { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
+                { key: "Red", value: "No Entry", color: "#EE204D" },
+            ];
+            var SCT = new Tabulator("#" + divId, {
+                tooltips: function(cell) {
+                    return cell.getValue();
+                },
+                height: "205px",
+                data: sctData,
+                layout: "fitColumns",
+                rowFormatter: function(row) {
+                    let val = row.getCell("value").getValue();
+                    let c = sctData.find(element => element["value"] == val)["color"].toUpperCase();
+                    row.getElement().style.backgroundColor = c;
+                    if (c == "#000080" || c == "#005F00" || c == "#800080") {
+                        row.getElement().style.color = "white";
+                    }
+                },
+                columns: sctColumns,
+            });
+            SCT.redraw()
+        }
+
+    }
+
+}
+
+/*
+
 
 
 
@@ -507,135 +861,5 @@ var ProfileBase = {
             //chart.legend.labels.template.fill = am4core.color("#FFFFFF");
             //chart.legend.labels.template.textDecoration = "none";
             //chart.legend.valueLabels.template.textDecoration = "none";
-        },
-
-
-        dashCharts: function() {
-            let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
-            var dashDivElementNameArray = this.createDashDivElements(symbols.length);
-            $.get("/stock")
-                .done(function(data, status) {
-                    let y = []
-                    let i = 0;
-                    for (let item of data) {
-                        if (symbols.includes(item["symbol"])) {
-                            let u = ProfileBase.dashboard.getDashObject(item)
-                            let tr = []
-                            tr.push(u)
-                            //variableWidthCurvedColumnChart(tr, dashDivElementNameArray[i]);
-                            //verticalLayeredColumnChart(tr, dashDivElementNameArray[i]);
-                            ProfileBase.dashboard.stackedColumnChart(tr, dashDivElementNameArray[i])
-                            i = i + 1
-                            //y.push(u)
-                        }
-                    }
-                    //horizontalLayeredColumnChart(y)
-                    //verticalLayeredColumnChart(y)
-                    //variableWidthCurvedColumnChart(y)
-                });
-        },
-
-        getDashObject: function(item) {
-            let u = new Object()
-            u.symbol = item["symbol"]
-            let v = item["value"]
-            let enw = v.split("Enw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
-            let exw = v.split("Exw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
-            let slw = v.split("Slw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
-
-            u.enwl = parseFloat(enw.split("-")[0])
-            u.enwh = parseFloat(enw.split("-")[1])
-
-            u.exwl = parseFloat(exw.split("-")[0])
-            u.exwh = parseFloat(exw.split("-")[1])
-
-            u.slwl = parseFloat(slw.split("-")[0])
-            u.slwh = parseFloat(slw.split("-")[1])
-            return u;
-        },
-
-
-        createDashDivElements: function(length) {
-            let o = [];
-            //let rowCount = 15
-            let columnCount = 3;
-            let cellCount = length; //rowCount * columnCount
-            let dash = document.getElementById("dashRows");
-            dash.innerHTML = "";
-            for (let i = 0; i < cellCount; i = i + columnCount) {
-
-                if (i % columnCount == 0) {
-                    let y = document.createElement("div");
-                    divRowName = "dashDivRow" + i;
-                    y.id = divRowName;
-                    y.classList = "w3-row";
-                    dash.appendChild(y);
-
-                    for (let j = 0; j < columnCount; j++) {
-                        let u = document.createElement("div");
-                        u.classList = "w3-col s4 w3-center";
-                        divColName = "dashDivCol" + (i + j);
-                        u.id = divColName;
-                        u.style.height = "600px"
-                        y.appendChild(u);
-                        o.push(divColName);
-
-                    }
-                }
-            }
-            return o;
-        },
-
-        stockColorKey: function(divId) {
-            let sctColumns = [ //Define Table Columns
-                {
-                    title: "Key",
-                    field: "key",
-                    hozAlign: "center",
-                    formatter: function(cell) {
-                        cell.getElement().style.height = "25px"
-                        return cell.getValue()
-                    }
-                },
-                {
-                    title: "Value",
-                    field: "value",
-                    hozAlign: "center",
-                    formatter: function(cell) {
-                        cell.getElement().style.height = "25px"
-                        return cell.getValue()
-                    }
-                },
-            ];
-            let sctData = [
-                { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
-                { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
-                { key: "Lime", value: "Low Entry-Level Day", color: "#00FF00" },
-                { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
-                { key: "Purple", value: "Profit Level 2", color: "#800080" },
-                { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
-                { key: "Red", value: "No Entry", color: "#EE204D" },
-            ];
-            var SCT = new Tabulator("#" + divId, {
-                tooltips: function(cell) {
-                    return cell.getValue();
-                },
-                height: "205px",
-                data: sctData,
-                layout: "fitColumns",
-                rowFormatter: function(row) {
-                    let val = row.getCell("value").getValue();
-                    let c = sctData.find(element => element["value"] == val)["color"].toUpperCase();
-                    row.getElement().style.backgroundColor = c;
-                    if (c == "#000080" || c == "#005F00" || c == "#800080") {
-                        row.getElement().style.color = "white";
-                    }
-                },
-                columns: sctColumns,
-            });
-            SCT.redraw()
         }
-
-    }
-
-}
+*/

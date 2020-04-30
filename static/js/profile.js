@@ -108,10 +108,13 @@ var ProfileBase = {
 
         init: function() {
 
-            this.dashboardStocks()
-            this.stockColorKey("stockColorKey")
-            this.dashboardProfile()
-            this.dashCharts()
+            this.dashboardStocks();
+            this.stockColorKey("stockColorKey");
+            this.dashboardProfile();
+            this.dashCharts();
+            this.generateStockList();
+            this.addEventListeners();
+
         },
 
         dashboardStocksTabulator: function(data) {
@@ -194,34 +197,18 @@ var ProfileBase = {
                             operation = "remove"
                         } else {
                             operation = "add"
-                        }
-
-                        let ou;
-                        if (operation == "add") {
-                            let ou = JSON.parse(String(localStorage.getItem("userData")))["symbols"].length + 1;
-                            let subscrip = JSON.parse(String(localStorage.getItem("userData")))["subscriptionType"];
-                            let overflow = false;
-                            if (subscrip == "Free Subscription" && ou > 2) {
-                                overflow = true;
-                            } else if (subscrip == "Basic Subscription" && ou > 10) {
-                                overflow = true;
-                            } else if (subscrip == "Premium Subscription" && ou > 30) {
-                                overflow = true;
-                            } else if (subscrip == "Platinum Subscription" && ou > 50) {
-                                overflow = true;
-                            }
-                            if (overflow) {
-                                vex.dialog.buttons.YES.text = "Okay";
-                                vex.dialog.alert('You have reached the limit for your subscription type.')
+                            if (ProfileBase.dashboard.subscripCheck(1)) {
                                 return;
                             }
-
                         }
-                        vex.dialog.buttons.YES.text = operation;
+
+                        vex.dialog.buttons.YES.text = "Yes";
+                        vex.dialog.buttons.NO.text = "Cancel";
                         vex.dialog.confirm({
                             message: 'Would you like to ' + operation + ' this symbol to your account?',
                             callback: function(value) {
                                 if (value) {
+                                    vex.dialog.buttons.YES.text = operation;
                                     vex.dialog.prompt({
                                         message: 'Please re-enter your password',
                                         placeholder: 'Password',
@@ -289,7 +276,7 @@ var ProfileBase = {
                         let tr = [];
                         let obj = ProfileBase.dashboard.getDashObject(item);
                         tr.push(obj);
-                        ProfileBase.dashboard.axisRangeChart(tr, "individualChart")
+                        ProfileBase.dashboard.areaChart(tr, "individualChart")
                         openDTab("IndividualDashboard")
                     }
                 },
@@ -342,7 +329,7 @@ var ProfileBase = {
                     ProfileBase.dashboard.dashboardStocksTabulator(data_);
                 });
         },
-        
+
         axisRangeChart: function(data_, divName) {
 
             // Create chart instance
@@ -557,6 +544,173 @@ var ProfileBase = {
             //chart.valign = "top"
         },
 
+        areaChart: function(data_, divName) {
+
+            let dataO_ = data_[0];
+            let dataO__ = [];
+
+            rClose = dataO_["close"];
+            delete dataO_["close"];
+            delete dataO_["slwh"]
+
+            let vMax = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] > dataO_[b] ? a : b })];
+            let vMin = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] < dataO_[b] ? a : b })];
+            if (dataO_["enwh"] < dataO_["exwl"]) {
+
+                let slwSet = false;
+                let enwlSet = false;
+                let enwhSet = false;
+                let exwlSet = false;
+                for (let i = 0; i < 11; i++) {
+                    let j = new Object();
+                    j.x = i;
+                    //j.value = Math.pow((i - 500.0) / uDivide, 3.0) + (vDiff / 2.0) + vMin;
+                    j.value = i * ((vMax - vMin) / 10) + vMin
+
+                    if (dataO_["slwl"] - j.value < 1 && !slwSet) {
+                        j.lineColor = "#EE204D";
+                        slwSet = true;
+                    } else if (dataO_["enwl"] - j.value < 1 && !enwlSet) {
+                        j.lineColor = "#005f00";
+                        enwlSet = true;
+                    } else if (dataO_["enwh"] - j.value < 1 && !enwhSet) {
+                        j.lineColor = "#FFA500";
+                        enwhSet = true;
+
+                    } else if (dataO_["exwl"] - j.value < 1 && !exwlSet) {
+                        j.lineColor = "#F664AF";
+                        exwlSet = true;
+                    }
+
+                    dataO__.push(j)
+                }
+            } else {
+
+                let exwhSet = false;
+                let exwlSet = false;
+                let enwhSet = false;
+                let enwlSet = false;
+                for (let i = 0; i < 11; i++) {
+                    let j = new Object();
+                    j.x = i;
+                    //j.value = Math.pow((i - 500.0) / uDivide, 3.0) + (vDiff / 2.0) + vMin;
+                    j.value = i * ((vMax - vMin) / 10) + vMin
+
+                    if (dataO_["exwh"] - j.value < 1 && !exwhSet) {
+                        j.lineColor = "#F664AF";
+                        exwhSet = true;
+                    } else if (dataO_["exwl"] - j.value < 1 && !exwlSet) {
+                        j.lineColor = "#FFA500";
+                        exwlSet = true;
+                    } else if (dataO_["enwh"] - j.value < 1 && !enwhSet) {
+                        j.lineColor = "#005f00";
+                        enwhSet = true;
+
+                    } else if (dataO_["enwl"] - j.value < 1 && !enwlSet) {
+                        j.lineColor = "#EE204D";
+                        enwlSet = true;
+                    }
+
+                    dataO__.push(j)
+                }
+            }
+
+            // Themes begin
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            var chart = am4core.create(divName, am4charts.XYChart);
+            var title = chart.titles.create();
+            title.text = dataO_["symbol"];
+            title.fill = am4core.color("#FFFFFF");
+            //title.fontSize = 25;
+            //title.marginBottom = 30;
+
+            var data = [];
+
+            chart.data = dataO__;
+
+            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
+
+            //categoryAxis.renderer.grid.template.location = 0;
+            //categoryAxis.renderer.ticks.template.disabled = true;
+            //categoryAxis.renderer.line.opacity = 0;
+            //categoryAxis.renderer.grid.template.disabled = true;
+            //categoryAxis.renderer.minGridDistance = 40;
+            categoryAxis.dataFields.category = "x";
+            //categoryAxis.startLocation = 0.4;
+            //categoryAxis.endLocation = 0.6;
+            categoryAxis.renderer.labels.template.disabled = true;
+
+
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
+            valueAxis.tooltip.disabled = true;
+            valueAxis.renderer.line.opacity = 1;
+            valueAxis.renderer.ticks.template.disabled = true;
+
+            valueAxis.max = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] > dataO_[b] ? a : b })]
+            valueAxis.min = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] < dataO_[b] ? a : b })]
+
+            var lineSeries = chart.series.push(new am4charts.LineSeries());
+            lineSeries.dataFields.categoryX = "x";
+            lineSeries.dataFields.valueY = "value";
+            lineSeries.tooltipText = "$: {valueY.value}";
+            lineSeries.fillOpacity = 1;
+            lineSeries.strokeWidth = 3;
+            lineSeries.propertyFields.stroke = "lineColor";
+            lineSeries.propertyFields.fill = "lineColor";
+
+            // var bullet = lineSeries.bullets.push(new am4charts.CircleBullet());
+            //bullet.circle.radius = 6;
+            //bullet.circle.fill = am4core.color("#fff");
+            //bullet.circle.strokeWidth = 3;
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.behavior = "panX";
+            chart.cursor.lineX.opacity = 0;
+            chart.cursor.lineY.opacity = 0;
+
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.parent = chart.bottomAxesContainer;
+
+            var range = valueAxis.axisRanges.create();
+            range.value = rClose;
+            range.grid.stroke = am4core.color("#000000");
+            range.grid.strokeWidth = 5;
+            range.grid.strokeOpacity = 1;
+            range.grid.above = true;
+
+
+
+            chart.legend = new am4charts.Legend();
+            //chart.legend.parent = chart.chartContainer;
+            //chart.legend.background.fill = am4core.color("#0000FF");
+            chart.legend.labels.template.fill = am4core.color("#FFFFFF")
+            //chart.legend.label.fill = "#"
+            //chart.legend.background.fillOpacity = 0.05;
+            //chart.legend.width = 120;
+            chart.legend.data = [{
+                "name": "Slw: " + dataO_["slwl"],
+                "fill": "#EE204D"
+            }, {
+                "name": "Enw[/]\n" + "Low: " + dataO_["enwl"] + "[/]\nHigh: " + dataO_["enwh"],
+                "fill": "#005f00"
+            }, {
+                "name": "Exw[/]\n" + "Low: " + dataO_["exwl"] + "[/]\nHigh: " + dataO_["exwh"],
+                "fill": "#F664AF"
+            }, {
+                "name": "Close: " + rClose,
+                "fill": "#000000"
+            }];
+
+            chart.legend.position = "top";
+            //chart.legend.contentAlign = "center";
+            //chart.width = am4core.percent(100);
+
+        },
+
 
         dashCharts: function() {
             let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
@@ -570,11 +724,7 @@ var ProfileBase = {
                             let u = ProfileBase.dashboard.getDashObject(item)
                             let tr = []
                             tr.push(u)
-                            //variableWidthCurvedColumnChart(tr, dashDivElementNameArray[i]);
-                            //verticalLayeredColumnChart(tr, dashDivElementNameArray[i]);
-                            //ProfileBase.dashboard.stackedColumnChart(tr, dashDivElementNameArray[i])
-                            ProfileBase.dashboard.axisRangeChart(tr, dashDivElementNameArray[i])
-
+                            ProfileBase.dashboard.areaChart(tr, dashDivElementNameArray[i])
                             i = i + 1
                             //y.push(u)
                         }
@@ -688,178 +838,159 @@ var ProfileBase = {
                 columns: sctColumns,
             });
             SCT.redraw()
+        },
+
+        generateStockList: function() {
+            let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
+            $.get("/stock")
+                .done(function(data, status) {
+                    let addSel = document.getElementById("addStockList");
+                    let removeSel = document.getElementById("removeStockList");
+                    addSel.innerHTML = "";
+                    removeSel.innerHTML = ""
+                    for (let el of data) {
+
+                        if (!symbols.includes(el["symbol"])) {
+                            sOpt = document.createElement("option");
+                            sOpt["value"] = el["symbol"];
+                            sOpt.innerHTML = el["symbol"]
+                            addSel.appendChild(sOpt);
+                        }
+
+                        if (symbols.includes(el["symbol"])) {
+                            sOpt = document.createElement("option");
+                            sOpt["value"] = el["symbol"];
+                            sOpt.innerHTML = el["symbol"]
+                            removeSel.appendChild(sOpt);
+                        }
+
+                    }
+                    $(function() {
+                        jcf.replaceAll();
+                    });
+                });
+
+        },
+        addEventListeners: function() {
+
+            document.getElementById("addListButton").addEventListener("click", function() {
+                vex.dialog.buttons.YES.text = "Yes";
+                vex.dialog.buttons.NO.text = "Cancel";
+                vex.dialog.confirm({
+                    message: 'Are you sure you would like to add these symbols to your account?',
+                    callback: function(value) {
+                        if (value) {
+                            vex.dialog.buttons.YES.text = "add";
+                            vex.dialog.prompt({
+                                message: 'Please re-enter your password',
+                                placeholder: 'Password',
+                                callback: function(value) {
+                                    if (value) {
+                                        if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
+                                            window.alert("Incorrect Password for user");
+                                            this.open()
+                                        } else {
+                                            let x = $("#addStockList").val()
+                                            if (ProfileBase.dashboard.subscripCheck(x.length)) {
+                                                return;
+                                            }
+                                            $.post("/addSymbols", {
+                                                    "symbols": JSON.stringify(x, null, 2)
+                                                })
+                                                .done(function(data, status) {
+                                                    vex.dialog.buttons.YES.text = "Okay";
+                                                    vex.dialog.alert({
+                                                        message: 'You successfully added the selected symbols!',
+                                                        callback: function(value) {
+                                                            localStorage.setItem("userData", data)
+                                                            ProfileBase.dashboard.generateStockList()
+                                                            ProfileBase.dashboard.dashboardProfile()
+                                                            ProfileBase.dashboard.dashboardStocks()
+                                                            ProfileBase.dashboard.dashCharts()
+                                                        }
+
+                                                    })
+
+                                                });
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    }
+                })
+
+            });
+
+            document.getElementById("removeListButton").addEventListener("click", function() {
+                vex.dialog.buttons.YES.text = "Yes";
+                vex.dialog.buttons.NO.text = "Cancel";
+                vex.dialog.confirm({
+                    message: 'Are you sure you would like to remove these symbols from your account?',
+                    callback: function(value) {
+                        if (value) {
+                            vex.dialog.buttons.YES.text = "remove";
+                            vex.dialog.prompt({
+                                message: 'Please re-enter your password',
+                                placeholder: 'Password',
+                                callback: function(value) {
+                                    if (value) {
+                                        if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
+                                            window.alert("Incorrect Password for user");
+                                            this.open()
+                                        } else {
+                                            let y = $("#removeStockList").val()
+                                            $.post("/removeSymbols", {
+                                                    "symbols": JSON.stringify(y, null, 2)
+                                                })
+                                                .done(function(data, status) {
+                                                    vex.dialog.buttons.YES.text = "Okay";
+                                                    vex.dialog.alert({
+                                                        message: 'You successfully removed the selected symbols!',
+                                                        callback: function(value) {
+                                                            localStorage.setItem("userData", data)
+                                                            ProfileBase.dashboard.generateStockList()
+                                                            ProfileBase.dashboard.dashboardProfile()
+                                                            ProfileBase.dashboard.dashboardStocks()
+                                                            ProfileBase.dashboard.dashCharts()
+                                                        }
+
+                                                    })
+
+                                                });
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    }
+                })
+            });
+
+        },
+
+        subscripCheck: function(lengthOfSymbolsToAdd) {
+            let ou = JSON.parse(String(localStorage.getItem("userData")))["symbols"].length + lengthOfSymbolsToAdd;
+            let subscrip = JSON.parse(String(localStorage.getItem("userData")))["subscriptionType"];
+            let overflow = false;
+            if (subscrip == "Free Subscription" && ou > 2) {
+                overflow = true;
+            } else if (subscrip == "Basic Subscription" && ou > 10) {
+                overflow = true;
+            } else if (subscrip == "Premium Subscription" && ou > 30) {
+                overflow = true;
+            } else if (subscrip == "Platinum Subscription" && ou > 50) {
+                overflow = true;
+            }
+            if (overflow) {
+                vex.dialog.buttons.YES.text = "Okay";
+                vex.dialog.alert('You have reached the limit for your subscription type.')
+            }
+            return overflow;
+
+
         }
 
     }
 
 }
-
-/*
-
-
-
-
-
-
-        stackedColumnChart: function(data_, divName) {
-
-            // Themes begin
-            am4core.useTheme(am4themes_animated);
-            // Themes end
-
-            // Create chart instance
-            var chart = am4core.create(divName, am4charts.XYChart);
-
-            //chart.legend = new am4charts.Legend();
-            //chart.legend.position = "right";
-
-            var exwhHigh = false;
-            data__ = data_[0]
-            if (data__["slwh"] < data__["exwh"]) {
-                //MCD,DarkGreen,Close=164.01  (LCB0L[ Enw= (144.92-153.73) Exw= (176.09-199.15) Slw= (134.10-134.10)  ])
-                exwhHigh = true;
-
-                data___ = [{
-                    "symbol": data__["symbol"],
-                    "base": data__["slwh"],
-                    "slwp": data__["enwl"] - data__["slwh"],
-                    "enw": data__["enwh"] - data__["enwl"],
-                    "gap": data__["exwl"] - data__["enwh"],
-                    "exw": data__["exwh"] - data__["exwl"]
-                }];
-                chart.colors.list = [
-                    am4core.color("#0000ff"),
-                    am4core.color("#EE204D"),
-                    am4core.color("#005f00"),
-                    am4core.color("#FFA500"),
-                    am4core.color("#F664AF"),
-                ];
-            } else {
-                //PG,Lime,Close=110.17  (SS0L[ Enw= (111.55-105.96) Exw= (91.76-77.12) Slw= (116.88-123.70)  ])
-                data___ = [{
-                    "symbol": data__["symbol"],
-                    "base": data__["exwh"],
-                    "exw": data__["exwl"] - data__["exwh"],
-                    "gap1": data__["enwh"] - data__["exwl"],
-                    "enw": data__["enwl"] - data__["enwh"],
-                    "gap2": data__["slwl"] - data__["enwl"],
-                    "slwp": data__["slwh"] - data__["slwl"]
-                }];
-
-                chart.colors.list = [
-                    am4core.color("#0000ff"),
-                    am4core.color("#F664AF"),
-                    am4core.color("#FFA500"),
-                    am4core.color("#005f00"),
-                    am4core.color("#FFA500"),
-                    am4core.color("#EE204D"),
-
-                ];
-
-            }
-            chart.data = data___
-
-
-            // Create axes
-            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-            categoryAxis.dataFields.category = "symbol";
-            categoryAxis.renderer.grid.template.location = 0;
-            categoryAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
-
-
-
-            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis.min = data___[0]["base"];
-            valueAxis.title.text = "$(US)";
-            valueAxis.title.fill = am4core.color("#FFFFFF");
-            valueAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
-            valueAxis.renderer.inside = true;
-
-
-            var i;
-            i = 0;
-            // Create series
-            function createSeries(field, name) {
-
-                // Set up series
-                var series = chart.series.push(new am4charts.ColumnSeries());
-                series.name = name;
-                series.dataFields.valueY = field;
-                series.dataFields.categoryX = "symbol";
-                series.sequencedInterpolation = true;
-
-                // Make it stacked
-                series.stacked = true;
-
-                // Configure columns
-                series.columns.template.width = am4core.percent(60);
-                if (i > 0) {
-                    if (exwhHigh) {
-                        if (i == 1) {
-                            series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.slwh + "[/]\nHigh: " + data__.enwl;
-                            series.tooltip.pointerOrientation = "left"
-                        } else if (i == 2) {
-                            series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.enwl + "[/]\nHigh: " + data__.enwh;
-                            series.tooltip.pointerOrientation = "right"
-                        } else if (i == 3) {
-                            //do nothing
-                        } else if (i == 4) {
-                            series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.exwl + "[/]\nHigh: " + data__.exwh;
-                            series.tooltip.pointerOrientation = "up"
-                        }
-                    } else {
-                        if (i == 1) {
-                            series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.exwl + "[/]\nHigh: " + data__.exwh;
-                            series.tooltip.pointerOrientation = "left"
-                        } else if (i == 2) {
-                            //do nothing
-                        } else if (i == 3) {
-                            series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.enwl + "[/]\nHigh: " + data__.enwh;
-                            series.tooltip.pointerOrientation = "right";
-                        } else if (i == 4) {
-                            //do nothing
-                        } else if (i == 5) {
-                            series.columns.template.tooltipText = "[bold]{name}[/]\n" + "Low: " + data__.slwl + "[/]\nHigh: " + data__.slwh;
-                            series.tooltip.pointerOrientation = "left"
-                        }
-                    }
-                    series.columns.template.alwaysShowTooltip = true
-                    series.tooltip.hitTest = false;
-                    //series.columns.template.tooltipText = "[bold]{name}[/]\n[font-size:14px]{categoryX}: {valueY}";
-                }
-
-                // Add label
-                //var labelBullet = series.bullets.push(new am4charts.LabelBullet());
-                //labelBullet.label.text = "{name}"/*"[bold]{name}[/]\n" +  //data__.slw + "-" + data__.enwl;
-                //labelBullet.locationY = 0.5;
-                //labelBullet.label.hideOversized = true;
-
-                i = i + 1;
-                return series;
-            }
-
-            createSeries("base", "")
-
-            if (exwhHigh) {
-                createSeries("slwp", "SLW")
-                createSeries("enw", "ENW")
-                createSeries("gap", "gap")
-                createSeries("exw", "EXW")
-            } else {
-                createSeries("exw", "EXW")
-                createSeries("gap1", "gap")
-                createSeries("enw", "ENW")
-                createSeries("gap2", "gap")
-                createSeries("slwp", "SLW")
-            }
-
-            //chart.cursor = new am4charts.XYCursor();
-
-            //Legend
-            //chart.legend = new am4charts.Legend();
-            //chart.legend.position = "right";
-            //chart.legend.labels.template.fill = am4core.color("#FFFFFF");
-            //chart.legend.labels.template.textDecoration = "none";
-            //chart.legend.valueLabels.template.textDecoration = "none";
-        }
-*/

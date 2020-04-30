@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jcf/1.2.3/js/jcf.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jcf/1.2.3/js/jcf.radio.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jcf/1.2.3/js/jcf.checkbox.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jcf/1.2.3/js/jcf.select.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jcf/1.2.3/css/theme-minimal/jcf.css">
 
 <body>
     <div id="main" class="m-scene">
@@ -38,9 +43,22 @@
         </div>
         <div id="StockTable" class="pTab" style="display:none">
             <h1 style="text-align:center" class="h2 scene_element scene_element--fadein">{{ userData.name }}'s Stock Portolio</h1><br>
-            <div class="w3-container w3-center" style="text-align:center;">
-                <div id="stockColorKey" class="scene_element scene_element--fadeinleft" style="margin-left: auto;
+            <div class="w3-row w3-center" style="text-align:center;">
+                <div class="w3-col s6 w3-center">
+                    <div style="font-family:BI">
+                        <button id="addListButton" type="button">Add</button>
+                        <br>
+                        <select multiple id="addStockList" placeholder="Select Stocks" data-jcf='{"wrapNative": false, "wrapNativeOnMobile": false, "useCustomScroll": true, "multipleCompactStyle": true}'></select>
+                        <br>
+                        <button id="removeListButton" type="button">Remove</button>
+                        <br>
+                        <select multiple id="removeStockList" placeholder="Select Stocks" data-jcf='{"wrapNative": false, "wrapNativeOnMobile": false, "useCustomScroll": true, "multipleCompactStyle": true}'></select>
+                    </div>
+                </div>
+                <div class="w3-col s6 w3-center">
+                    <div id="stockColorKey" class="scene_element scene_element--fadeinleft" style="margin-left: auto;
     margin-right: auto; font-family: BI; width:400px"></div>
+                </div>
             </div>
             <div class="w3-row">
                 <div class="w3-col s6 w3-center">

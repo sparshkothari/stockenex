@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, ListField
+from mongoengine import Document, StringField, ListField, FloatField
 
 
 class User(Document):
@@ -14,3 +14,9 @@ class Stock(Document):
     symbol = StringField(required=True)
     value = StringField(default="no value")
     color = StringField(default="no color")
+    slw = ListField(FloatField())
+    enwl = ListField(FloatField())
+    enwh = ListField(FloatField())
+    exwl = ListField(FloatField())
+    exwh = ListField(FloatField())
+    close = ListField(FloatField())

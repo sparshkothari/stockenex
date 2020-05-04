@@ -146,12 +146,14 @@ var ProfileBase = {
             let legendCMap = function() {
                 let i = [{ key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
                     { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
+                    { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
                     { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
                     { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
                     { key: "Purple", value: "Profit Level 2", color: "#800080" },
                     { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
                     { key: "Red", value: "No Entry", color: "#EE204D" },
-                    { key: "Light Blue", value: "Short Entry Region", color: "#1F75FE" }
+                    { key: "Light Blue", value: "Short Entry Region", color: "#1F75FE" },
+                    { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
                 ]
 
                 this.returnColor = function(value) {
@@ -276,7 +278,7 @@ var ProfileBase = {
                         let tr = [];
                         let obj = ProfileBase.dashboard.getDashObject(item);
                         tr.push(obj);
-                        ProfileBase.dashboard.areaChart(tr, "individualChart")
+                        ProfileBase.dashboard.rangeAreaChart(tr, "individualChart")
                         openDTab("IndividualDashboard")
                     }
                 },
@@ -330,170 +332,123 @@ var ProfileBase = {
                 });
         },
 
-        areaChart: function(data_, divName) {
-
-            let dataO_ = data_[0];
-            let dataO__ = [];
-
-            rClose = dataO_["close"];
-            delete dataO_["close"];
-            delete dataO_["slwh"]
-
-            let vMax = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] > dataO_[b] ? a : b })];
-            let vMin = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] < dataO_[b] ? a : b })];
-            if (dataO_["enwh"] < dataO_["exwl"]) {
-
-                let slwSet = false;
-                let enwlSet = false;
-                let enwhSet = false;
-                let exwlSet = false;
-                for (let i = 0; i < 11; i++) {
-                    let j = new Object();
-                    j.x = i;
-                    //j.value = Math.pow((i - 500.0) / uDivide, 3.0) + (vDiff / 2.0) + vMin;
-                    j.value = i * ((vMax - vMin) / 10) + vMin
-
-                    if (dataO_["slwl"] - j.value < 1 && !slwSet) {
-                        j.lineColor = "#EE204D";
-                        slwSet = true;
-                    } else if (dataO_["enwl"] - j.value < 1 && !enwlSet) {
-                        j.lineColor = "#005f00";
-                        enwlSet = true;
-                    } else if (dataO_["enwh"] - j.value < 1 && !enwhSet) {
-                        j.lineColor = "#FFA500";
-                        enwhSet = true;
-
-                    } else if (dataO_["exwl"] - j.value < 1 && !exwlSet) {
-                        j.lineColor = "#F664AF";
-                        exwlSet = true;
-                    }
-
-                    dataO__.push(j)
-                }
-            } else {
-
-                let exwhSet = false;
-                let exwlSet = false;
-                let enwhSet = false;
-                let enwlSet = false;
-                for (let i = 0; i < 11; i++) {
-                    let j = new Object();
-                    j.x = i;
-                    //j.value = Math.pow((i - 500.0) / uDivide, 3.0) + (vDiff / 2.0) + vMin;
-                    j.value = i * ((vMax - vMin) / 10) + vMin
-
-                    if (dataO_["exwh"] - j.value < 1 && !exwhSet) {
-                        j.lineColor = "#F664AF";
-                        exwhSet = true;
-                    } else if (dataO_["exwl"] - j.value < 1 && !exwlSet) {
-                        j.lineColor = "#FFA500";
-                        exwlSet = true;
-                    } else if (dataO_["enwh"] - j.value < 1 && !enwhSet) {
-                        j.lineColor = "#005f00";
-                        enwhSet = true;
-
-                    } else if (dataO_["enwl"] - j.value < 1 && !enwlSet) {
-                        j.lineColor = "#EE204D";
-                        enwlSet = true;
-                    }
-
-                    dataO__.push(j)
-                }
-            }
+        rangeAreaChart: function(data_, divName) {
 
             // Themes begin
             am4core.useTheme(am4themes_animated);
             // Themes end
 
             var chart = am4core.create(divName, am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            let data = []
+            let data__ = data_[0]
+            for (let i = 0; i < data__["slw"].length; i++) {
+                data.push({
+                    date: new Date(2018, 0, i),
+                    slw: data__.slw[i],
+                    enwl: data__.enwl[i],
+                    enwh: data__.enwh[i],
+                    exwl: data__.exwl[i],
+                    exwh: data__.exwh[i],
+                    close: data__.close[i]
+                });
+            }
+
             var title = chart.titles.create();
-            title.text = dataO_["symbol"];
-            title.fill = am4core.color("#FFFFFF");
-            //title.fontSize = 25;
-            //title.marginBottom = 30;
+            title.text = data__["symbol"];
 
-            var data = [];
+            chart.data = data;
 
-            chart.data = dataO__;
-
-            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-            categoryAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
-
-            //categoryAxis.renderer.grid.template.location = 0;
-            //categoryAxis.renderer.ticks.template.disabled = true;
-            //categoryAxis.renderer.line.opacity = 0;
-            //categoryAxis.renderer.grid.template.disabled = true;
-            //categoryAxis.renderer.minGridDistance = 40;
-            categoryAxis.dataFields.category = "x";
-            //categoryAxis.startLocation = 0.4;
-            //categoryAxis.endLocation = 0.6;
-            categoryAxis.renderer.labels.template.disabled = true;
-
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
 
             var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
             valueAxis.tooltip.disabled = true;
-            valueAxis.renderer.line.opacity = 1;
-            valueAxis.renderer.ticks.template.disabled = true;
 
-            valueAxis.max = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] > dataO_[b] ? a : b })]
-            valueAxis.min = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] < dataO_[b] ? a : b })]
+            function createSeries(field, openField, name, color, strokeColor) {
+                var series = chart.series.push(new am4charts.LineSeries());
 
-            var lineSeries = chart.series.push(new am4charts.LineSeries());
-            lineSeries.dataFields.categoryX = "x";
-            lineSeries.dataFields.valueY = "value";
-            lineSeries.tooltipText = "$: {valueY.value}";
-            lineSeries.fillOpacity = 1;
-            lineSeries.strokeWidth = 3;
-            lineSeries.propertyFields.stroke = "lineColor";
-            lineSeries.propertyFields.fill = "lineColor";
+                series.dataFields.dateX = "date";
+                series.dataFields.openValueY = openField;
+                series.dataFields.valueY = field;
+                series.name = name
+                series.sequencedInterpolation = true;
+                series.fillOpacity = 0.3;
+                series.fill = am4core.color(color)
+                series.defaultState.transitionDuration = 1000;
+                series.tensionX = 0.8;
+                series.tooltipText = "[b]{valueY}[/]";
+                series.stroke = am4core.color(strokeColor);
 
-            // var bullet = lineSeries.bullets.push(new am4charts.CircleBullet());
-            //bullet.circle.radius = 6;
-            //bullet.circle.fill = am4core.color("#fff");
-            //bullet.circle.strokeWidth = 3;
+                let dotColor;
+                if (name == "slw") {
+                    dotColor = am4core.color("#EE204D")
+                } else if (name == "enwh" || name == "exwh") {
+                    dotColor = am4core.color("#005f00")
+                } else if (name == "exwh" || "exwl") {
+                    dotColor = am4core.color("#F664AF")
+                }
+                // Set up tooltip
+                series.adapter.add("tooltipText", function(ev) {
+                    var text = "";
+                    chart.series.each(function(item) {
+                        text += "[" + item.stroke.hex + "]●[/] " + item.name + ": {" + item.dataFields.valueY + "}\n";
+                    });
+                    return text;
+                });
+
+                series.tooltip.getFillFromObject = false;
+                series.tooltip.background.fill = am4core.color("#fff");
+                series.tooltip.label.fill = am4core.color("#00");
+
+                if (strokeColor == "#000000") {
+                    series.fillOpacity = 0;
+                    series.tensionX = 1;
+                }
+                var bullet = series.bullets.push(new am4charts.CircleBullet());
+                    bullet.circle.stroke = am4core.color("#fff");
+                    bullet.circle.strokeWidth = 2;
+                    bullet.circle.fill = series.stroke
+
+                return series;
+
+            }
+
+                createSeries("close", null, "close", null, "#000000")
+            if (data__["enwh"] < data__["exwl"]) {
+                createSeries("exwh", "exwl", "exwh", "#F664AF", "#F664AF")
+                createSeries("exwl", "enwh", "exwl", "#FFA500", "#F664AF")
+                createSeries("enwh", "enwl", "enwh", "#005f00", "#005f00")
+                createSeries("enwl", "slw", "enwl", "#EE204D", "#005f00")
+                createSeries("slw", null, "slw", "#FFFFFF", "#EE204D")
+            }else{
+                createSeries("slw", "enwl", "slw", "#EE204D", "#EE204D")
+                createSeries("enwl", "enwh", "enwl", "#005f00", "#005f00")
+                createSeries("enwh", "exwl", "enwh", "#FFA500", "#005f00")
+                createSeries("exwl", "exwh", "exwl", "#F664AF", "#F664AF")
+                createSeries("exwh", null, "exwh", "#FFFFFF", "#F664AF")
+            }
+
 
             chart.cursor = new am4charts.XYCursor();
-            chart.cursor.behavior = "panX";
-            chart.cursor.lineX.opacity = 0;
-            chart.cursor.lineY.opacity = 0;
-
+            chart.cursor.xAxis = dateAxis;
             chart.scrollbarX = new am4core.Scrollbar();
-            chart.scrollbarX.parent = chart.bottomAxesContainer;
-
-            var range = valueAxis.axisRanges.create();
-            range.value = rClose;
-            range.grid.stroke = am4core.color("#000000");
-            range.grid.strokeWidth = 5;
-            range.grid.strokeOpacity = 1;
-            range.grid.above = true;
-
-
+            chart.cursor.maxTooltipDistance = 0;
 
             chart.legend = new am4charts.Legend();
-            //chart.legend.parent = chart.chartContainer;
-            //chart.legend.background.fill = am4core.color("#0000FF");
-            chart.legend.labels.template.fill = am4core.color("#FFFFFF")
-            //chart.legend.label.fill = "#"
-            //chart.legend.background.fillOpacity = 0.05;
-            //chart.legend.width = 120;
             chart.legend.data = [{
-                "name": "Slw: " + dataO_["slwl"],
+                "name": "Slw",
                 "fill": "#EE204D"
             }, {
-                "name": "Enw[/]\n" + "Low: " + dataO_["enwl"] + "[/]\nHigh: " + dataO_["enwh"],
+                "name": "Enw",
                 "fill": "#005f00"
             }, {
-                "name": "Exw[/]\n" + "Low: " + dataO_["exwl"] + "[/]\nHigh: " + dataO_["exwh"],
+                "name": "Exw",
                 "fill": "#F664AF"
             }, {
-                "name": "Close: " + rClose,
+                "name": "Close",
                 "fill": "#000000"
             }];
-
-            chart.legend.position = "top";
-            //chart.legend.contentAlign = "center";
-            //chart.width = am4core.percent(100);
 
         },
 
@@ -510,7 +465,7 @@ var ProfileBase = {
                             let u = ProfileBase.dashboard.getDashObject(item)
                             let tr = []
                             tr.push(u)
-                            ProfileBase.dashboard.areaChart(tr, dashDivElementNameArray[i])
+                            ProfileBase.dashboard.rangeAreaChart(tr, dashDivElementNameArray[i])
                             i = i + 1
                             //y.push(u)
                         }
@@ -522,7 +477,7 @@ var ProfileBase = {
         },
 
         getDashObject: function(item) {
-            let u = new Object()
+            /*let u = new Object()
             u.symbol = item["symbol"]
             let v = item["value"]
             let enw = v.split("Enw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
@@ -541,7 +496,8 @@ var ProfileBase = {
 
             u.close = close;
 
-            return u;
+            return u;*/
+            return item;
         },
 
 
@@ -660,99 +616,57 @@ var ProfileBase = {
         addEventListeners: function() {
 
             document.getElementById("addListButton").addEventListener("click", function() {
-                vex.dialog.buttons.YES.text = "Yes";
-                vex.dialog.buttons.NO.text = "Cancel";
-                vex.dialog.confirm({
-                    message: 'Are you sure you would like to add these symbols to your account?',
-                    callback: function(value) {
-                        if (value) {
-                            vex.dialog.buttons.YES.text = "add";
-                            vex.dialog.prompt({
-                                message: 'Please re-enter your password',
-                                placeholder: 'Password',
-                                callback: function(value) {
-                                    if (value) {
-                                        if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
-                                            window.alert("Incorrect Password for user");
-                                            this.open()
-                                        } else {
-                                            let x = $("#addStockList").val()
-                                            if (ProfileBase.dashboard.subscripCheck(x.length)) {
-                                                return;
-                                            }
-                                            $.post("/addSymbols", {
-                                                    "symbols": JSON.stringify(x, null, 2)
-                                                })
-                                                .done(function(data, status) {
-                                                    vex.dialog.buttons.YES.text = "Okay";
-                                                    vex.dialog.alert({
-                                                        message: 'You successfully added the selected symbols!',
-                                                        callback: function(value) {
-                                                            localStorage.setItem("userData", data)
-                                                            ProfileBase.dashboard.generateStockList()
-                                                            ProfileBase.dashboard.dashboardProfile()
-                                                            ProfileBase.dashboard.dashboardStocks()
-                                                            ProfileBase.dashboard.dashCharts()
-                                                        }
-
-                                                    })
-
-                                                });
-                                        }
-                                    }
-                                }
-                            })
-                        }
-                    }
-                })
-
+                ProfileBase.dashboard.stockListButtons("add");
             });
 
             document.getElementById("removeListButton").addEventListener("click", function() {
-                vex.dialog.buttons.YES.text = "Yes";
-                vex.dialog.buttons.NO.text = "Cancel";
-                vex.dialog.confirm({
-                    message: 'Are you sure you would like to remove these symbols from your account?',
-                    callback: function(value) {
-                        if (value) {
-                            vex.dialog.buttons.YES.text = "remove";
-                            vex.dialog.prompt({
-                                message: 'Please re-enter your password',
-                                placeholder: 'Password',
-                                callback: function(value) {
-                                    if (value) {
-                                        if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
-                                            window.alert("Incorrect Password for user");
-                                            this.open()
-                                        } else {
-                                            let y = $("#removeStockList").val()
-                                            $.post("/removeSymbols", {
-                                                    "symbols": JSON.stringify(y, null, 2)
-                                                })
-                                                .done(function(data, status) {
-                                                    vex.dialog.buttons.YES.text = "Okay";
-                                                    vex.dialog.alert({
-                                                        message: 'You successfully removed the selected symbols!',
-                                                        callback: function(value) {
-                                                            localStorage.setItem("userData", data)
-                                                            ProfileBase.dashboard.generateStockList()
-                                                            ProfileBase.dashboard.dashboardProfile()
-                                                            ProfileBase.dashboard.dashboardStocks()
-                                                            ProfileBase.dashboard.dashCharts()
-                                                        }
-
-                                                    })
-
-                                                });
-                                        }
-                                    }
-                                }
-                            })
-                        }
-                    }
-                })
+                ProfileBase.dashboard.stockListButtons("remove");
             });
 
+        },
+        stockListButtons: function(operation) {
+            vex.dialog.buttons.YES.text = "Yes";
+            vex.dialog.buttons.NO.text = "Cancel";
+            vex.dialog.confirm({
+                message: 'Are you sure you would like to ' + operation + ' these symbols?',
+                callback: function(value) {
+                    if (value) {
+                        vex.dialog.buttons.YES.text = operation;
+                        vex.dialog.prompt({
+                            message: 'Please re-enter your password',
+                            placeholder: 'Password',
+                            callback: function(value) {
+                                if (value) {
+                                    if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
+                                        window.alert("Incorrect Password for user");
+                                        this.open()
+                                    } else {
+                                        let y = $("#" + operation + "StockList").val()
+                                        $.post("/" + operation + "Symbols", {
+                                                "symbols": JSON.stringify(y, null, 2)
+                                            })
+                                            .done(function(data, status) {
+                                                vex.dialog.buttons.YES.text = "Okay";
+                                                vex.dialog.alert({
+                                                    message: 'Success!',
+                                                    callback: function(value) {
+                                                        localStorage.setItem("userData", data)
+                                                        ProfileBase.dashboard.generateStockList()
+                                                        ProfileBase.dashboard.dashboardProfile()
+                                                        ProfileBase.dashboard.dashboardStocks()
+                                                        ProfileBase.dashboard.dashCharts()
+                                                    }
+
+                                                })
+
+                                            });
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
+            })
         },
 
         subscripCheck: function(lengthOfSymbolsToAdd) {

@@ -23,13 +23,26 @@ def fetchStocks():
                 i = Stock.objects(Q(symbol=symbol)).first()
             i.value = value
             i.color = color
-
+            if color == "#FCE883":
+                i.slw = []
+                i.enwl = []
+                i.enwh = []
+                i.exwl = []
+                i.exwh = []
+                i.close = []
+                i.high = []
+                i.low = []
             v = i.value
+
+            trend = v.split("  ")[0]
             enw = v.split("Enw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
             exw = v.split("Exw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
             slw = v.split("Slw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
             close = v.split("Close=")[1].split(" ")[0]
+            high = v.split("High=")[1].split(" ")[0]
+            low = v.split("Low=")[1].split(" ")[0]
 
+            i.trend = trend
             i.enwl.append(float(enw.split("-")[0]))
             i.enwh.append(float(enw.split("-")[1]))
 
@@ -37,8 +50,9 @@ def fetchStocks():
             i.exwh.append(float(exw.split("-")[1]))
 
             i.slw.append(float(slw.split("-")[0]))
-            #i.slwh.append(float(slw.split("-")[1]))
 
             i.close.append(float(close))
+            i.high.append(float(high))
+            i.low.append(float(low))
             i.save()
     disconnect()

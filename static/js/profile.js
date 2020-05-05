@@ -244,6 +244,7 @@ var ProfileBase = {
                         })
                     }
                 },
+                //headerVisible:false,
                 height: "100%",
                 data: tabData,
                 layout: "fitColumns",
@@ -257,6 +258,69 @@ var ProfileBase = {
             let symbols = userData["symbols"]
 
             let ustColumns = [{
+                    title: "Value",
+                    field: "value",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "slw",
+                    field: "slw",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "enwl",
+                    field: "enwl",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "enwh",
+                    field: "enwh",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "exwl",
+                    field: "exwl",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "exwh",
+                    field: "exwh",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "high",
+                    field: "high",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "low",
+                    field: "low",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "close",
+                    field: "close",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
                     title: "",
                     field: "viewGraph",
                     hozAlign: "center",
@@ -272,9 +336,29 @@ var ProfileBase = {
                         z.appendChild(y);
                         let sy = cell.getRow().getCell("symbol").getValue();
                         let val = cell.getRow().getCell("value").getValue();
+
+                        let trend = cell.getRow().getCell("trend").getValue();
+                        let slw = cell.getRow().getCell("slw").getValue();
+                        let enwl = cell.getRow().getCell("enwl").getValue();
+                        let enwh = cell.getRow().getCell("enwh").getValue();
+                        let exwl = cell.getRow().getCell("exwl").getValue();
+                        let exwh = cell.getRow().getCell("exwh").getValue();
+                        let close = cell.getRow().getCell("close").getValue();
+                        let low = cell.getRow().getCell("low").getValue();
+                        let high = cell.getRow().getCell("high").getValue();
+
                         let item = new Object();
                         item["symbol"] = sy;
                         item["value"] = val;
+                        item["trend"] = trend;
+                        item["slw"] = slw
+                        item["enwl"] = enwl
+                        item["enwh"] = enwh
+                        item["exwl"] = exwl
+                        item["exwh"] = exwh
+                        item["close"] = close
+                        item["low"] = low
+                        item["high"] = high
                         let tr = [];
                         let obj = ProfileBase.dashboard.getDashObject(item);
                         tr.push(obj);
@@ -282,13 +366,57 @@ var ProfileBase = {
                         openDTab("IndividualDashboard")
                     }
                 },
-                { title: "Symbol", field: "symbol", hozAlign: "center", width: 100 },
+                /*
+1st column—trend—LCB/LB/
+2nd column-ENW
+3rd column-EXW
+4th column-SLW
+5th column-close
+6th column-high/low
+*/
                 {
-                    title: "Value",
-                    field: "value",
+                    title: "symbol",
+                    field: "symbol",
+                    hozAlign: "center",
+                    width: 75
+                },
+                {
+                    title: "trend",
+                    field: "trend",
+                    hozAlign: "middle",
+                    width: 75
+                },
+                {
+                    title: "enw",
+                    field: "enw",
+                    hozAlign: "center",
+                    formatter: "textarea"
+                },
+                {
+                    title: "exw",
+                    field: "exw",
+                    hozAlign: "center",
+                    formatter: "textarea"
+                },
+                {
+                    title: "slw",
+                    field: "slwLast",
+                    hozAlign: "center",
+                    formatter: "textarea"
+                },
+                {
+                    title: "close",
+                    field: "closeLast",
+                    hozAlign: "center",
+                    formatter: "textarea"
+                },
+                {
+                    title: "low—high",
+                    field: "lowHigh",
                     hozAlign: "center",
                     formatter: "textarea"
                 }
+
             ]
             let ustData = []
             $.get("/stock")
@@ -299,7 +427,22 @@ var ProfileBase = {
                             let u = new Object()
                             u.symbol = item["symbol"]
                             u.value = item["value"]
+                            u.trend = item["trend"]
+                            u.slw = item["slw"]
+                            u.enwl = item["enwl"]
+                            u.enwh = item["enwh"]
+                            u.exwl = item["exwl"]
+                            u.exwh = item["exwh"]
+                            u.close = item["close"]
+                            u.high = item["high"]
+                            u.low = item["low"]
+                            u.slwLast = u.slw.slice(-1)[0]
+                            u.closeLast = u.close.slice(-1)[0]
+                            u.lowHigh = u.low.slice(-1)[0] + "—" + u.high.slice(-1)[0]
+                            u.enw = u.enwl.slice(-1)[0] + "—" + u.enwh.slice(-1)[0]
+                            u.exw = u.exwl.slice(-1)[0] + "—" + u.exwh.slice(-1)[0]
                             u.viewGraph = "View Graph";
+
                             ustData.push(u)
                         }
                     }
@@ -351,12 +494,14 @@ var ProfileBase = {
                     enwh: data__.enwh[i],
                     exwl: data__.exwl[i],
                     exwh: data__.exwh[i],
-                    close: data__.close[i]
+                    close: data__.close[i],
+                    high: data__.high[i],
+                    low: data__.low[i]
                 });
             }
 
             var title = chart.titles.create();
-            title.text = data__["symbol"];
+            title.text = data__["symbol"] + "\n" + "trend: " + data__["trend"];
 
             chart.data = data;
 
@@ -380,14 +525,6 @@ var ProfileBase = {
                 series.tooltipText = "[b]{valueY}[/]";
                 series.stroke = am4core.color(strokeColor);
 
-                let dotColor;
-                if (name == "slw") {
-                    dotColor = am4core.color("#EE204D")
-                } else if (name == "enwh" || name == "exwh") {
-                    dotColor = am4core.color("#005f00")
-                } else if (name == "exwh" || "exwl") {
-                    dotColor = am4core.color("#F664AF")
-                }
                 // Set up tooltip
                 series.adapter.add("tooltipText", function(ev) {
                     var text = "";
@@ -401,27 +538,42 @@ var ProfileBase = {
                 series.tooltip.background.fill = am4core.color("#fff");
                 series.tooltip.label.fill = am4core.color("#00");
 
-                if (strokeColor == "#000000") {
+                if (name == "close") {
                     series.fillOpacity = 0;
                     series.tensionX = 1;
+                    //series.strokeDasharray = [5]
+                    series.strokeWidth = 10
+                } else if (name == "high") {
+                    series.fillOpacity = 0;
+                    series.tensionX = 1;
+                    series.strokeDasharray = [5]
+                    series.strokeWidth = 10
+                } else if (name == "low") {
+                    series.fillOpacity = 0;
+                    series.tensionX = 1;
+                    series.strokeDasharray = [10]
+                    series.strokeWidth = 10
                 }
                 var bullet = series.bullets.push(new am4charts.CircleBullet());
-                    bullet.circle.stroke = am4core.color("#fff");
-                    bullet.circle.strokeWidth = 2;
-                    bullet.circle.fill = series.stroke
+                bullet.circle.stroke = am4core.color("#fff");
+                bullet.circle.strokeWidth = 2;
+                bullet.circle.fill = series.stroke
 
                 return series;
 
             }
 
-                createSeries("close", null, "close", null, "#000000")
+            createSeries("close", null, "close", null, "#000000")
+            createSeries("high", null, "high", null, "#00D7AF")
+            createSeries("low", null, "low", null, "#00FF00")
+
             if (data__["enwh"] < data__["exwl"]) {
                 createSeries("exwh", "exwl", "exwh", "#F664AF", "#F664AF")
                 createSeries("exwl", "enwh", "exwl", "#FFA500", "#F664AF")
                 createSeries("enwh", "enwl", "enwh", "#005f00", "#005f00")
                 createSeries("enwl", "slw", "enwl", "#EE204D", "#005f00")
                 createSeries("slw", null, "slw", "#FFFFFF", "#EE204D")
-            }else{
+            } else {
                 createSeries("slw", "enwl", "slw", "#EE204D", "#EE204D")
                 createSeries("enwl", "enwh", "enwl", "#005f00", "#005f00")
                 createSeries("enwh", "exwl", "enwh", "#FFA500", "#005f00")
@@ -436,7 +588,7 @@ var ProfileBase = {
             chart.cursor.maxTooltipDistance = 0;
 
             chart.legend = new am4charts.Legend();
-            chart.legend.data = [{
+            /*chart.legend.data = [{
                 "name": "Slw",
                 "fill": "#EE204D"
             }, {
@@ -448,14 +600,14 @@ var ProfileBase = {
             }, {
                 "name": "Close",
                 "fill": "#000000"
-            }];
+            }];*/
 
         },
 
 
         dashCharts: function() {
             let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
-            var dashDivElementNameArray = this.createDashDivElements(symbols.length);
+            var dashDivElementNameArray = this.createDashDivElements(symbols);
             $.get("/stock")
                 .done(function(data, status) {
                     let y = []
@@ -465,7 +617,7 @@ var ProfileBase = {
                             let u = ProfileBase.dashboard.getDashObject(item)
                             let tr = []
                             tr.push(u)
-                            ProfileBase.dashboard.rangeAreaChart(tr, dashDivElementNameArray[i])
+                            ProfileBase.dashboard.rangeAreaChart(tr, "dashDivCol" + u.symbol)
                             i = i + 1
                             //y.push(u)
                         }
@@ -501,7 +653,8 @@ var ProfileBase = {
         },
 
 
-        createDashDivElements: function(length) {
+        createDashDivElements: function(symbols) {
+            let length = symbols.length
             let o = [];
             //let rowCount = 15
             let columnCount = 3;
@@ -512,7 +665,7 @@ var ProfileBase = {
 
                 if (i % columnCount == 0) {
                     let y = document.createElement("div");
-                    divRowName = "dashDivRow" + i;
+                    let divRowName = "dashDivRow" + i;
                     y.id = divRowName;
                     y.classList = "w3-row";
                     dash.appendChild(y);
@@ -520,7 +673,14 @@ var ProfileBase = {
                     for (let j = 0; j < columnCount; j++) {
                         let u = document.createElement("div");
                         u.classList = "w3-col s4 w3-center";
-                        divColName = "dashDivCol" + (i + j);
+
+                        let divColName;
+                        if ((i + j) < cellCount) {
+                            divColName = "dashDivCol" + symbols[i + j];
+                        } else {
+                            divColName = "dashDivCol" + (i + j);
+
+                        }
                         u.id = divColName;
                         u.style.height = "600px"
                         y.appendChild(u);
@@ -556,22 +716,24 @@ var ProfileBase = {
             let sctData = [
                 { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
                 { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
-                { key: "Lime", value: "Low Entry-Level Day", color: "#00FF00" },
+                { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
+                { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
                 { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
                 { key: "Purple", value: "Profit Level 2", color: "#800080" },
                 { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
                 { key: "Red", value: "No Entry", color: "#EE204D" },
+                { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
             ];
             var SCT = new Tabulator("#" + divId, {
                 tooltips: function(cell) {
                     return cell.getValue();
                 },
-                height: "205px",
+                height: "255px",
                 data: sctData,
                 layout: "fitColumns",
                 rowFormatter: function(row) {
-                    let val = row.getCell("value").getValue();
-                    let c = sctData.find(element => element["value"] == val)["color"].toUpperCase();
+                    let key = row.getCell("key").getValue();
+                    let c = sctData.find(element => element["key"] == key)["color"].toUpperCase();
                     row.getElement().style.backgroundColor = c;
                     if (c == "#000080" || c == "#005F00" || c == "#800080") {
                         row.getElement().style.color = "white";
@@ -586,10 +748,12 @@ var ProfileBase = {
             let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
             $.get("/stock")
                 .done(function(data, status) {
+                    let dashboardSel = document.getElementById("dashboardList")
                     let addSel = document.getElementById("addStockList");
                     let removeSel = document.getElementById("removeStockList");
                     addSel.innerHTML = "";
-                    removeSel.innerHTML = ""
+                    removeSel.innerHTML = "";
+                    dashboardSel.innerHTML = '<option value="">Select Graph</option>';
                     for (let el of data) {
 
                         if (!symbols.includes(el["symbol"])) {
@@ -604,6 +768,10 @@ var ProfileBase = {
                             sOpt["value"] = el["symbol"];
                             sOpt.innerHTML = el["symbol"]
                             removeSel.appendChild(sOpt);
+                            sOpt = document.createElement("option");
+                            sOpt["value"] = el["symbol"];
+                            sOpt.innerHTML = el["symbol"]
+                            dashboardSel.appendChild(sOpt);
                         }
 
                     }
@@ -623,6 +791,10 @@ var ProfileBase = {
                 ProfileBase.dashboard.stockListButtons("remove");
             });
 
+            document.getElementById("viewDashButton").addEventListener("click", function() {
+                let y = $("#" + "dashboardList").val()
+                window.location.href = "#dashDivCol" + y;
+            });
         },
         stockListButtons: function(operation) {
             vex.dialog.buttons.YES.text = "Yes";

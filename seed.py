@@ -8,8 +8,14 @@ def fetchStocks():
     connect('stockenex')
     with open('s3://stockenex/colorMap.json', 'r') as c:
         colorMap = json.load(c)[1]
-    for i in range(1,3):
+    with open('s3://stockenex/stockDataFileCount.txt') as fc:
+        fileCount = int(fc.readline())
+
+    Stock.objects.delete()
+    for i in range(1, fileCount + 1):
         for line in open('s3://stockenex/stockData' + str(i) + '.csv'):
+            if ('Symbol,"S, D","S, D"' in line or "Trade in Profit Range" in line):
+                continue
             lineInfo = line.split(',', 2)
             symbol = lineInfo[0]
             color = lineInfo[1].lower()

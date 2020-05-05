@@ -803,6 +803,10 @@ var ProfileBase = {
                 message: 'Are you sure you would like to ' + operation + ' these symbols?',
                 callback: function(value) {
                     if (value) {
+                        let selectedStocks = $("#" + operation + "StockList").val()
+                        if (operation == "add" && ProfileBase.dashboard.subscripCheck(selectedStocks.length)) {
+                            return;
+                        }
                         vex.dialog.buttons.YES.text = operation;
                         vex.dialog.prompt({
                             message: 'Please re-enter your password',
@@ -813,9 +817,9 @@ var ProfileBase = {
                                         window.alert("Incorrect Password for user");
                                         this.open()
                                     } else {
-                                        let y = $("#" + operation + "StockList").val()
+
                                         $.post("/" + operation + "Symbols", {
-                                                "symbols": JSON.stringify(y, null, 2)
+                                                "symbols": JSON.stringify(selectedStocks, null, 2)
                                             })
                                             .done(function(data, status) {
                                                 vex.dialog.buttons.YES.text = "Okay";

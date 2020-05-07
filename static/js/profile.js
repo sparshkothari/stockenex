@@ -181,7 +181,7 @@ var ProfileBase = {
                             } else {
                                 cell.getElement().style.backgroundColor = color;
                             }
-                            if (color == "#000080" || color == "#005f00") {
+                            if (color == "#000080" || color == "#005f00" || color == "#800080") {
                                 cell.getElement().style.color = "white";
                             }
                         } else {
@@ -484,11 +484,63 @@ var ProfileBase = {
             var chart = am4core.create(divName, am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
 
+
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.dateFormats.setKey("day", "MMMM dt");
+
             let data = []
             let data__ = data_[0]
-            for (let i = 0; i < data__["slw"].length; i++) {
+                            debugger;
+
+            for (let i = 0, j = data__["slw"].length - 1; i < data__["slw"].length, j > -1; i++, j--) {
+                let da = new Date()
+                let dataDa = data__.date[i].split("-")//2020-05-06
+                da.setDate(dataDa[2])
+                da.setMonth(dataDa[1] - 1)
+                da.setYear(dataDa[0])
+                /*if (new Date().getHours() < 13) {
+                    da = new Date()
+                    da.setDate(da.getDate() - j - 1)
+
+                } else {
+                    da = new Date()
+                    da.setDate(da.getDate() - j)
+                }*/
+
+                if (data__["slw"].length == 1) {
+                    da__ = new Date(da)
+                    da__.setHours(4)
+                    da.setHours(3)
+                    dateAxis.baseInterval = {
+                        "timeUnit": "hour",
+                        "count": 1
+                    }
+                    dateAxis.dateFormats.setKey("hour", "MMMM dt");
+                    //dateAxis.groupData = true;
+                    //dateAxis.minZoomCount = 5;
+                    //dateAxis.groupIntervals.setAll([
+                    //  { timeUnit: "month", count: 1 },
+                    //{ timeUnit: "day", count: 1 },
+                    //{ timeUnit: "hour", count: 1 }
+                    //]);
+                    //dateAxis.groupData = true;
+                    //dateAxis.renderer.maxGridDistance = 15;
+                    //dateAxis.dateFormats.setKey("day", "MMMM dt");
+                    data.push({
+                        date: da__,
+                        slw: data__.slw[i],
+                        enwl: data__.enwl[i],
+                        enwh: data__.enwh[i],
+                        exwl: data__.exwl[i],
+                        exwh: data__.exwh[i],
+                        close: data__.close[i],
+                        high: data__.high[i],
+                        low: data__.low[i]
+                    });
+
+                }
                 data.push({
-                    date: new Date(2018, 0, i),
+                    date: da,
                     slw: data__.slw[i],
                     enwl: data__.enwl[i],
                     enwh: data__.enwh[i],
@@ -502,10 +554,19 @@ var ProfileBase = {
 
             var title = chart.titles.create();
             title.text = data__["symbol"] + "\n" + "trend: " + data__["trend"];
+            if (data__["color"] == "#F664AF") {
+                title.text += "\nTrade in Profit Range"
+            } else if (data__["color"] == "#FCE883") {
+                title.text += "\nTrend Change"
+            } else if (data__["color"] == "#00FF00") {
+                title.text += "\nEntry Day"
+            } else if (data__["color"] == "#EE204D") {
+                title.text += "\nNo Entry for Trade"
+            }
 
             chart.data = data;
 
-            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+
 
             var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
             valueAxis.tooltip.disabled = true;
@@ -542,17 +603,17 @@ var ProfileBase = {
                     series.fillOpacity = 0;
                     series.tensionX = 1;
                     //series.strokeDasharray = [5]
-                    series.strokeWidth = 10
+                    series.strokeWidth = 5
                 } else if (name == "high") {
                     series.fillOpacity = 0;
                     series.tensionX = 1;
                     series.strokeDasharray = [5]
-                    series.strokeWidth = 10
+                    series.strokeWidth = 5
                 } else if (name == "low") {
                     series.fillOpacity = 0;
                     series.tensionX = 1;
                     series.strokeDasharray = [10]
-                    series.strokeWidth = 10
+                    series.strokeWidth = 5
                 }
                 var bullet = series.bullets.push(new am4charts.CircleBullet());
                 bullet.circle.stroke = am4core.color("#fff");
@@ -564,16 +625,16 @@ var ProfileBase = {
             }
 
             createSeries("close", null, "close", null, "#000000")
-            createSeries("high", null, "high", null, "#00D7AF")
+            createSeries("high", null, "high", null, "#800080")
             createSeries("low", null, "low", null, "#00FF00")
 
-            if (data__["enwh"] < data__["exwl"]) {
+            if (data__["LS"] == "L") {
                 createSeries("exwh", "exwl", "exwh", "#F664AF", "#F664AF")
                 createSeries("exwl", "enwh", "exwl", "#FFA500", "#F664AF")
                 createSeries("enwh", "enwl", "enwh", "#005f00", "#005f00")
                 createSeries("enwl", "slw", "enwl", "#EE204D", "#005f00")
                 createSeries("slw", null, "slw", "#FFFFFF", "#EE204D")
-            } else {
+            } else if (data__["LS"] == "S"){
                 createSeries("slw", "enwl", "slw", "#EE204D", "#EE204D")
                 createSeries("enwl", "enwh", "enwl", "#005f00", "#005f00")
                 createSeries("enwh", "exwl", "enwh", "#FFA500", "#005f00")

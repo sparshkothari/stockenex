@@ -14,6 +14,8 @@ class Stock(Document):
     symbol = StringField(required=True)
     value = StringField(default="no value")
     color = StringField(default="no color")
+    date = ListField(StringField())
+    LS = StringField(default="")
     trend = StringField(default="no trend")
     slw = ListField(FloatField())
     enwl = ListField(FloatField())

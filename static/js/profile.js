@@ -103,7 +103,6 @@ var ProfileBase = {
         }
     },
 
-    //userStocksTabulator.js
     dashboard: {
 
         init: function() {
@@ -150,7 +149,6 @@ var ProfileBase = {
                 }
 
                 this.returnValue = function(color) {
-                    //debugger;
                     return i.find(element => element["color"] == color.toUpperCase())["value"];
                 }
 
@@ -258,6 +256,20 @@ var ProfileBase = {
                     visible: false
                 },
                 {
+                    title: "date",
+                    field: "date",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                }, {
+                    title: "LS",
+                    field: "LS",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+
+                {
                     title: "",
                     field: "viewGraph",
                     hozAlign: "center",
@@ -283,19 +295,23 @@ var ProfileBase = {
                         let close = cell.getRow().getCell("close").getValue();
                         let low = cell.getRow().getCell("low").getValue();
                         let high = cell.getRow().getCell("high").getValue();
+                        let date = cell.getRow().getCell("date").getValue();
+                        let LS = cell.getRow().getCell("LS").getValue();
 
                         let item = new Object();
                         item["symbol"] = sy;
                         item["value"] = val;
                         item["trend"] = trend;
-                        item["slw"] = slw
-                        item["enwl"] = enwl
-                        item["enwh"] = enwh
-                        item["exwl"] = exwl
-                        item["exwh"] = exwh
-                        item["close"] = close
-                        item["low"] = low
-                        item["high"] = high
+                        item["slw"] = slw;
+                        item["enwl"] = enwl;
+                        item["enwh"] = enwh;
+                        item["exwl"] = exwl;
+                        item["exwh"] = exwh;
+                        item["close"] = close;
+                        item["low"] = low;
+                        item["high"] = high;
+                        item["date"] = date;
+                        item["LS"] = LS;
                         let tr = [];
                         let obj = ProfileBase.dashboard.getDashObject(item);
                         tr.push(obj);
@@ -362,17 +378,19 @@ var ProfileBase = {
                     for (let item of data_) {
                         if (symbols.includes(item["symbol"])) {
                             let u = new Object()
-                            u.symbol = item["symbol"]
-                            u.value = item["value"]
-                            u.trend = item["trend"]
-                            u.slw = item["slw"]
-                            u.enwl = item["enwl"]
-                            u.enwh = item["enwh"]
-                            u.exwl = item["exwl"]
-                            u.exwh = item["exwh"]
-                            u.close = item["close"]
-                            u.high = item["high"]
-                            u.low = item["low"]
+                            u.symbol = item["symbol"];
+                            u.value = item["value"];
+                            u.trend = item["trend"];
+                            u.slw = item["slw"];
+                            u.enwl = item["enwl"];
+                            u.enwh = item["enwh"];
+                            u.exwl = item["exwl"];
+                            u.exwh = item["exwh"];
+                            u.close = item["close"];
+                            u.high = item["high"];
+                            u.low = item["low"];
+                            u.date = item["date"];
+                            u.LS = item["LS"];
                             u.slwLast = u.slw.slice(-1)[0]
                             u.closeLast = u.close.slice(-1)[0]
                             u.lowHigh = u.low.slice(-1)[0] + "—" + u.high.slice(-1)[0]
@@ -434,14 +452,6 @@ var ProfileBase = {
                 da.setDate(dataDa[2])
                 da.setMonth(dataDa[1] - 1)
                 da.setYear(dataDa[0])
-                /*if (new Date().getHours() < 13) {
-                    da = new Date()
-                    da.setDate(da.getDate() - j - 1)
-
-                } else {
-                    da = new Date()
-                    da.setDate(da.getDate() - j)
-                }*/
 
                 if (data__["slw"].length == 1) {
                     da__ = new Date(da)
@@ -452,16 +462,6 @@ var ProfileBase = {
                         "count": 1
                     }
                     dateAxis.dateFormats.setKey("hour", "MMMM dt");
-                    //dateAxis.groupData = true;
-                    //dateAxis.minZoomCount = 5;
-                    //dateAxis.groupIntervals.setAll([
-                    //  { timeUnit: "month", count: 1 },
-                    //{ timeUnit: "day", count: 1 },
-                    //{ timeUnit: "hour", count: 1 }
-                    //]);
-                    //dateAxis.groupData = true;
-                    //dateAxis.renderer.maxGridDistance = 15;
-                    //dateAxis.dateFormats.setKey("day", "MMMM dt");
                     data.push({
                         date: da__,
                         slw: data__.slw[i],
@@ -585,19 +585,6 @@ var ProfileBase = {
             chart.cursor.maxTooltipDistance = 0;
 
             chart.legend = new am4charts.Legend();
-            /*chart.legend.data = [{
-                "name": "Slw",
-                "fill": "#EE204D"
-            }, {
-                "name": "Enw",
-                "fill": "#005f00"
-            }, {
-                "name": "Exw",
-                "fill": "#F664AF"
-            }, {
-                "name": "Close",
-                "fill": "#000000"
-            }];*/
 
         },
 
@@ -607,7 +594,6 @@ var ProfileBase = {
             var dashDivElementNameArray = this.createDashDivElements(symbols);
             $.get("/stock")
                 .done(function(data, status) {
-                    let y = []
                     let i = 0;
                     for (let item of data) {
                         if (symbols.includes(item["symbol"])) {
@@ -616,36 +602,12 @@ var ProfileBase = {
                             tr.push(u)
                             ProfileBase.dashboard.rangeAreaChart(tr, "dashDivCol" + u.symbol)
                             i = i + 1
-                            //y.push(u)
                         }
                     }
-                    //horizontalLayeredColumnChart(y)
-                    //verticalLayeredColumnChart(y)
-                    //variableWidthCurvedColumnChart(y)
                 });
         },
 
         getDashObject: function(item) {
-            /*let u = new Object()
-            u.symbol = item["symbol"]
-            let v = item["value"]
-            let enw = v.split("Enw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
-            let exw = v.split("Exw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
-            let slw = v.split("Slw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
-            let close = v.split("Close=")[1].split(" ")[0]
-
-            u.enwl = parseFloat(enw.split("-")[0])
-            u.enwh = parseFloat(enw.split("-")[1])
-
-            u.exwl = parseFloat(exw.split("-")[0])
-            u.exwh = parseFloat(exw.split("-")[1])
-
-            u.slwl = parseFloat(slw.split("-")[0])
-            u.slwh = parseFloat(slw.split("-")[1])
-
-            u.close = close;
-
-            return u;*/
             return item;
         },
 
@@ -653,9 +615,8 @@ var ProfileBase = {
         createDashDivElements: function(symbols) {
             let length = symbols.length
             let o = [];
-            //let rowCount = 15
             let columnCount = 3;
-            let cellCount = length; //rowCount * columnCount
+            let cellCount = length;
             let dash = document.getElementById("dashRows");
             dash.innerHTML = "";
             for (let i = 0; i < cellCount; i = i + columnCount) {
@@ -801,7 +762,7 @@ var ProfileBase = {
             } else if (subscrip == "Premium Subscription" && ou > 30) {
                 overflow = true;
             } //else if (subscrip == "Platinum Subscription" && ou > 50) {
-                //overflow = true;
+            //overflow = true;
             //}
             if (overflow) {
                 vex.dialog.buttons.YES.text = "Okay";
@@ -815,8 +776,7 @@ var ProfileBase = {
     },
     stockColorKey: {
         init: function(divId) {
-            let sctColumns = [ //Define Table Columns
-                {
+            let sctColumns = [{
                     title: "Key",
                     field: "key",
                     hozAlign: "center",
@@ -855,7 +815,7 @@ var ProfileBase = {
             });
             SCT.redraw()
         },
-        returnColorKey: function(){
+        returnColorKey: function() {
             return this.colorKey;
         },
 

@@ -6,6 +6,7 @@ var ProfileBase = {
                 localStorage.setItem("userData", JSON.stringify(data, null, 2))
                 ProfileBase.profile.init()
                 ProfileBase.subscrip.init()
+                ProfileBase.stockColorKey.init("stockColorKey")
                 ProfileBase.dashboard.init()
             });
 
@@ -102,14 +103,12 @@ var ProfileBase = {
         }
     },
 
-
     //userStocksTabulator.js
     dashboard: {
 
         init: function() {
 
             this.dashboardStocks();
-            this.stockColorKey("stockColorKey");
             this.dashboardProfile();
             this.dashCharts();
             this.generateStockList();
@@ -144,17 +143,7 @@ var ProfileBase = {
             }
 
             let legendCMap = function() {
-                let i = [{ key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
-                    { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
-                    { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
-                    { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
-                    { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
-                    { key: "Purple", value: "Profit Level 2", color: "#800080" },
-                    { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
-                    { key: "Red", value: "No Entry", color: "#EE204D" },
-                    { key: "Light Blue", value: "Short Entry Region", color: "#1F75FE" },
-                    { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
-                ]
+                let i = ProfileBase.stockColorKey.returnColorKey();
 
                 this.returnColor = function(value) {
                     return i.find(element => element["value"] == value)["color"];
@@ -191,59 +180,7 @@ var ProfileBase = {
                     }
                 })
             }
-            var CCT = new Tabulator("#x1", {
-                cellClick: function(e, cell) {
-                    if (cell.getValue()) {
-                        let operation = ""
-                        if (cell.getElement().style.backgroundColor == "rgb(192, 192, 192)") {
-                            operation = "remove"
-                        } else {
-                            operation = "add"
-                            if (ProfileBase.dashboard.subscripCheck(1)) {
-                                return;
-                            }
-                        }
-
-                        vex.dialog.buttons.YES.text = "Yes";
-                        vex.dialog.buttons.NO.text = "Cancel";
-                        vex.dialog.confirm({
-                            message: 'Would you like to ' + operation + ' this symbol to your account?',
-                            callback: function(value) {
-                                if (value) {
-                                    vex.dialog.buttons.YES.text = operation;
-                                    vex.dialog.prompt({
-                                        message: 'Please re-enter your password',
-                                        placeholder: 'Password',
-                                        callback: function(value) {
-                                            if (value) {
-                                                if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
-                                                    window.alert("Incorrect Password for user");
-                                                    this.open()
-                                                } else {
-                                                    $.post("/symbol", {
-                                                            symbol: cell.getValue(),
-                                                            operation: operation
-                                                        })
-                                                        .done(function(data, status) {
-                                                            localStorage.setItem("userData", data);
-                                                            ProfileBase.dashboard.dashboardProfile()
-                                                            ProfileBase.dashboard.dashCharts()
-                                                            if (operation == "add") {
-                                                                cell.getElement().style.backgroundColor = "#C0C0C0"
-                                                            } else if (operation == "remove") {
-                                                                let title = cell.getColumn().getDefinition().title //legendCMapSort
-                                                                cell.getElement().style.backgroundColor = new legendCMap().returnColor(title);
-                                                            }
-                                                        });
-                                                }
-                                            }
-                                        }
-                                    })
-                                }
-                            }
-                        })
-                    }
-                },
+            var CCT = new Tabulator("#dashboardStocksTabulator", {
                 //headerVisible:false,
                 height: "100%",
                 data: tabData,
@@ -490,11 +427,10 @@ var ProfileBase = {
 
             let data = []
             let data__ = data_[0]
-                            debugger;
 
             for (let i = 0, j = data__["slw"].length - 1; i < data__["slw"].length, j > -1; i++, j--) {
                 let da = new Date()
-                let dataDa = data__.date[i].split("-")//2020-05-06
+                let dataDa = data__.date[i].split("-") //2020-05-06
                 da.setDate(dataDa[2])
                 da.setMonth(dataDa[1] - 1)
                 da.setYear(dataDa[0])
@@ -555,13 +491,13 @@ var ProfileBase = {
             var title = chart.titles.create();
             title.text = data__["symbol"] + "\n" + "trend: " + data__["trend"];
             if (data__["color"] == "#F664AF") {
-                title.text += "\nTrade in Profit Range"
+                title.text += "\nComment: Trade in Profit Range"
             } else if (data__["color"] == "#FCE883") {
-                title.text += "\nTrend Change"
+                title.text += "\nComment: Trend Change"
             } else if (data__["color"] == "#00FF00") {
-                title.text += "\nEntry Day"
+                title.text += "\nComment: Entry Day"
             } else if (data__["color"] == "#EE204D") {
-                title.text += "\nNo Entry for Trade"
+                title.text += "\nComment: No Entry for Trade"
             }
 
             chart.data = data;
@@ -634,7 +570,7 @@ var ProfileBase = {
                 createSeries("enwh", "enwl", "enwh", "#005f00", "#005f00")
                 createSeries("enwl", "slw", "enwl", "#EE204D", "#005f00")
                 createSeries("slw", null, "slw", "#FFFFFF", "#EE204D")
-            } else if (data__["LS"] == "S"){
+            } else if (data__["LS"] == "S") {
                 createSeries("slw", "enwl", "slw", "#EE204D", "#EE204D")
                 createSeries("enwl", "enwh", "enwl", "#005f00", "#005f00")
                 createSeries("enwh", "exwl", "enwh", "#FFA500", "#005f00")
@@ -751,58 +687,6 @@ var ProfileBase = {
                 }
             }
             return o;
-        },
-
-        stockColorKey: function(divId) {
-            let sctColumns = [ //Define Table Columns
-                {
-                    title: "Key",
-                    field: "key",
-                    hozAlign: "center",
-                    formatter: function(cell) {
-                        cell.getElement().style.height = "25px"
-                        return cell.getValue()
-                    }
-                },
-                {
-                    title: "Value",
-                    field: "value",
-                    hozAlign: "center",
-                    formatter: function(cell) {
-                        cell.getElement().style.height = "25px"
-                        return cell.getValue()
-                    }
-                },
-            ];
-            let sctData = [
-                { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
-                { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
-                { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
-                { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
-                { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
-                { key: "Purple", value: "Profit Level 2", color: "#800080" },
-                { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
-                { key: "Red", value: "No Entry", color: "#EE204D" },
-                { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
-            ];
-            var SCT = new Tabulator("#" + divId, {
-                tooltips: function(cell) {
-                    return cell.getValue();
-                },
-                height: "255px",
-                data: sctData,
-                layout: "fitColumns",
-                rowFormatter: function(row) {
-                    let key = row.getCell("key").getValue();
-                    let c = sctData.find(element => element["key"] == key)["color"].toUpperCase();
-                    row.getElement().style.backgroundColor = c;
-                    if (c == "#000080" || c == "#005F00" || c == "#800080") {
-                        row.getElement().style.color = "white";
-                    }
-                },
-                columns: sctColumns,
-            });
-            SCT.redraw()
         },
 
         generateStockList: function() {
@@ -928,6 +812,65 @@ var ProfileBase = {
 
         }
 
+    },
+    stockColorKey: {
+        init: function(divId) {
+            let sctColumns = [ //Define Table Columns
+                {
+                    title: "Key",
+                    field: "key",
+                    hozAlign: "center",
+                    formatter: function(cell) {
+                        cell.getElement().style.height = "25px"
+                        return cell.getValue()
+                    }
+                },
+                {
+                    title: "Value",
+                    field: "value",
+                    hozAlign: "center",
+                    formatter: function(cell) {
+                        cell.getElement().style.height = "25px"
+                        return cell.getValue()
+                    }
+                },
+            ];
+            let sctData = this.colorKey;
+            var SCT = new Tabulator("#" + divId, {
+                tooltips: function(cell) {
+                    return cell.getValue();
+                },
+                height: "255px",
+                data: sctData,
+                layout: "fitColumns",
+                rowFormatter: function(row) {
+                    let key = row.getCell("key").getValue();
+                    let c = sctData.find(element => element["key"] == key)["color"].toUpperCase();
+                    row.getElement().style.backgroundColor = c;
+                    if (c == "#000080" || c == "#005F00" || c == "#800080") {
+                        row.getElement().style.color = "white";
+                    }
+                },
+                columns: sctColumns,
+            });
+            SCT.redraw()
+        },
+        returnColorKey: function(){
+            return this.colorKey;
+        },
+
+        colorKey: [
+            { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
+            { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
+            { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
+            { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
+            { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
+            { key: "Purple", value: "Profit Level 2", color: "#800080" },
+            { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
+            { key: "Red", value: "No Entry", color: "#EE204D" },
+            { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
+            { key: "Light Blue", value: "Short Entry Region", color: "#1F75FE" }
+        ]
     }
 
 }

@@ -30,7 +30,7 @@
                         1. Free — $0/month | Offers Two Stocks<br>
                         2. Basic — $10/month | Offers Ten Stocks<br>
                         3. Premium — $20/month | Offers Twenty Stocks<br>
-                        4. Platinum — $50/month | Offers Fifty Stocks<br>
+                        4. Platinum — $50/month | Offers Unlimited Stocks<br>
                     </p>
                 </div>
                 <div id="subscripButtons" class="scene_element scene_element--fadein">
@@ -65,14 +65,18 @@
                     <div id="userST" class="scene_element scene_element--fadeinleft" style="font-family: BI"></div>
                 </div>
                 <div class="w3-col s6 w3-center">
-                    <div id="x1" class="scene_element scene_element--fadeinup" style="font-size: medium; font-family: BI; width:100%"></div>
+                    <div id="dashboardStocksTabulator" class="scene_element scene_element--fadeinup" style="font-size: medium; font-family: BI; width:100%"></div>
                 </div>
             </div>
         </div>
-        <div id="IndividualDashboard" class="pTab" style="display: none; font-family: BI">
+        <div id="IndividualDashboard" class="pTab" style="background-color:white; display: none; font-family: BI">
         </div>
-        <div id="FullDashboard" class="pTab" style="display: none; font-family: BI;">
-            <h1 style="text-align:center" class="h2 scene_element scene_element--fadein">{{ userData.name }}'s Dashboard</h1><br>
+        <div id="FullDashboard" class="pTab" style="background-color:white; display: none; font-family: BI;">
+            <div class="w3-center">
+                <h1 style="color: black" class="h2 scene_element scene_element--fadein">{{ userData.name }}'s Dashboard</h1><br>
+                <select id="dashboardList" class="scene_element scene_element--fadeinleft" placeholder="View Dashboard" data-jcf='{"wrapNative": false, "wrapNativeOnMobile": false, "useCustomScroll": true, "multipleCompactStyle": true}'></select>
+                <button id="viewDashButton" type="button">View</button>
+            </div>
             <div id="dashRows" class="scene_element scene_element--fadeinup">
             </div>
         </div>

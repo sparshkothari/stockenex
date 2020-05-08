@@ -6,6 +6,7 @@ var ProfileBase = {
                 localStorage.setItem("userData", JSON.stringify(data, null, 2))
                 ProfileBase.profile.init()
                 ProfileBase.subscrip.init()
+                ProfileBase.stockColorKey.init("stockColorKey")
                 ProfileBase.dashboard.init()
             });
 
@@ -102,14 +103,12 @@ var ProfileBase = {
         }
     },
 
-
     //userStocksTabulator.js
     dashboard: {
 
         init: function() {
 
             this.dashboardStocks();
-            this.stockColorKey("stockColorKey");
             this.dashboardProfile();
             this.dashCharts();
             this.generateStockList();
@@ -144,15 +143,7 @@ var ProfileBase = {
             }
 
             let legendCMap = function() {
-                let i = [{ key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
-                    { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
-                    { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
-                    { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
-                    { key: "Purple", value: "Profit Level 2", color: "#800080" },
-                    { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
-                    { key: "Red", value: "No Entry", color: "#EE204D" },
-                    { key: "Light Blue", value: "Short Entry Region", color: "#1F75FE" }
-                ]
+                let i = ProfileBase.stockColorKey.returnColorKey();
 
                 this.returnColor = function(value) {
                     return i.find(element => element["value"] == value)["color"];
@@ -179,7 +170,7 @@ var ProfileBase = {
                             } else {
                                 cell.getElement().style.backgroundColor = color;
                             }
-                            if (color == "#000080" || color == "#005f00") {
+                            if (color == "#000080" || color == "#005f00" || color == "#800080") {
                                 cell.getElement().style.color = "white";
                             }
                         } else {
@@ -189,59 +180,8 @@ var ProfileBase = {
                     }
                 })
             }
-            var CCT = new Tabulator("#x1", {
-                cellClick: function(e, cell) {
-                    if (cell.getValue()) {
-                        let operation = ""
-                        if (cell.getElement().style.backgroundColor == "rgb(192, 192, 192)") {
-                            operation = "remove"
-                        } else {
-                            operation = "add"
-                            if (ProfileBase.dashboard.subscripCheck(1)) {
-                                return;
-                            }
-                        }
-
-                        vex.dialog.buttons.YES.text = "Yes";
-                        vex.dialog.buttons.NO.text = "Cancel";
-                        vex.dialog.confirm({
-                            message: 'Would you like to ' + operation + ' this symbol to your account?',
-                            callback: function(value) {
-                                if (value) {
-                                    vex.dialog.buttons.YES.text = operation;
-                                    vex.dialog.prompt({
-                                        message: 'Please re-enter your password',
-                                        placeholder: 'Password',
-                                        callback: function(value) {
-                                            if (value) {
-                                                if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
-                                                    window.alert("Incorrect Password for user");
-                                                    this.open()
-                                                } else {
-                                                    $.post("/symbol", {
-                                                            symbol: cell.getValue(),
-                                                            operation: operation
-                                                        })
-                                                        .done(function(data, status) {
-                                                            localStorage.setItem("userData", data);
-                                                            ProfileBase.dashboard.dashboardProfile()
-                                                            ProfileBase.dashboard.dashCharts()
-                                                            if (operation == "add") {
-                                                                cell.getElement().style.backgroundColor = "#C0C0C0"
-                                                            } else if (operation == "remove") {
-                                                                let title = cell.getColumn().getDefinition().title //legendCMapSort
-                                                                cell.getElement().style.backgroundColor = new legendCMap().returnColor(title);
-                                                            }
-                                                        });
-                                                }
-                                            }
-                                        }
-                                    })
-                                }
-                            }
-                        })
-                    }
-                },
+            var CCT = new Tabulator("#dashboardStocksTabulator", {
+                //headerVisible:false,
                 height: "100%",
                 data: tabData,
                 layout: "fitColumns",
@@ -255,6 +195,69 @@ var ProfileBase = {
             let symbols = userData["symbols"]
 
             let ustColumns = [{
+                    title: "Value",
+                    field: "value",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "slw",
+                    field: "slw",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "enwl",
+                    field: "enwl",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "enwh",
+                    field: "enwh",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "exwl",
+                    field: "exwl",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "exwh",
+                    field: "exwh",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "high",
+                    field: "high",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "low",
+                    field: "low",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "close",
+                    field: "close",
+                    hozAlign: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
                     title: "",
                     field: "viewGraph",
                     hozAlign: "center",
@@ -270,23 +273,87 @@ var ProfileBase = {
                         z.appendChild(y);
                         let sy = cell.getRow().getCell("symbol").getValue();
                         let val = cell.getRow().getCell("value").getValue();
+
+                        let trend = cell.getRow().getCell("trend").getValue();
+                        let slw = cell.getRow().getCell("slw").getValue();
+                        let enwl = cell.getRow().getCell("enwl").getValue();
+                        let enwh = cell.getRow().getCell("enwh").getValue();
+                        let exwl = cell.getRow().getCell("exwl").getValue();
+                        let exwh = cell.getRow().getCell("exwh").getValue();
+                        let close = cell.getRow().getCell("close").getValue();
+                        let low = cell.getRow().getCell("low").getValue();
+                        let high = cell.getRow().getCell("high").getValue();
+
                         let item = new Object();
                         item["symbol"] = sy;
                         item["value"] = val;
+                        item["trend"] = trend;
+                        item["slw"] = slw
+                        item["enwl"] = enwl
+                        item["enwh"] = enwh
+                        item["exwl"] = exwl
+                        item["exwh"] = exwh
+                        item["close"] = close
+                        item["low"] = low
+                        item["high"] = high
                         let tr = [];
                         let obj = ProfileBase.dashboard.getDashObject(item);
                         tr.push(obj);
-                        ProfileBase.dashboard.areaChart(tr, "individualChart")
+                        ProfileBase.dashboard.rangeAreaChart(tr, "individualChart")
                         openDTab("IndividualDashboard")
                     }
                 },
-                { title: "Symbol", field: "symbol", hozAlign: "center", width: 100 },
+                /*
+1st column—trend—LCB/LB/
+2nd column-ENW
+3rd column-EXW
+4th column-SLW
+5th column-close
+6th column-high/low
+*/
                 {
-                    title: "Value",
-                    field: "value",
+                    title: "symbol",
+                    field: "symbol",
+                    hozAlign: "center",
+                    width: 75
+                },
+                {
+                    title: "trend",
+                    field: "trend",
+                    hozAlign: "middle",
+                    width: 75
+                },
+                {
+                    title: "enw",
+                    field: "enw",
+                    hozAlign: "center",
+                    formatter: "textarea"
+                },
+                {
+                    title: "exw",
+                    field: "exw",
+                    hozAlign: "center",
+                    formatter: "textarea"
+                },
+                {
+                    title: "slw",
+                    field: "slwLast",
+                    hozAlign: "center",
+                    formatter: "textarea"
+                },
+                {
+                    title: "close",
+                    field: "closeLast",
+                    hozAlign: "center",
+                    formatter: "textarea"
+                },
+                {
+                    title: "low—high",
+                    field: "lowHigh",
                     hozAlign: "center",
                     formatter: "textarea"
                 }
+
             ]
             let ustData = []
             $.get("/stock")
@@ -297,7 +364,22 @@ var ProfileBase = {
                             let u = new Object()
                             u.symbol = item["symbol"]
                             u.value = item["value"]
+                            u.trend = item["trend"]
+                            u.slw = item["slw"]
+                            u.enwl = item["enwl"]
+                            u.enwh = item["enwh"]
+                            u.exwl = item["exwl"]
+                            u.exwh = item["exwh"]
+                            u.close = item["close"]
+                            u.high = item["high"]
+                            u.low = item["low"]
+                            u.slwLast = u.slw.slice(-1)[0]
+                            u.closeLast = u.close.slice(-1)[0]
+                            u.lowHigh = u.low.slice(-1)[0] + "—" + u.high.slice(-1)[0]
+                            u.enw = u.enwl.slice(-1)[0] + "—" + u.enwh.slice(-1)[0]
+                            u.exw = u.exwl.slice(-1)[0] + "—" + u.exwh.slice(-1)[0]
                             u.viewGraph = "View Graph";
+
                             ustData.push(u)
                         }
                     }
@@ -330,177 +412,199 @@ var ProfileBase = {
                 });
         },
 
-        areaChart: function(data_, divName) {
-
-            let dataO_ = data_[0];
-            let dataO__ = [];
-
-            rClose = dataO_["close"];
-            delete dataO_["close"];
-            delete dataO_["slwh"]
-
-            let vMax = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] > dataO_[b] ? a : b })];
-            let vMin = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] < dataO_[b] ? a : b })];
-            if (dataO_["enwh"] < dataO_["exwl"]) {
-
-                let slwSet = false;
-                let enwlSet = false;
-                let enwhSet = false;
-                let exwlSet = false;
-                for (let i = 0; i < 11; i++) {
-                    let j = new Object();
-                    j.x = i;
-                    //j.value = Math.pow((i - 500.0) / uDivide, 3.0) + (vDiff / 2.0) + vMin;
-                    j.value = i * ((vMax - vMin) / 10) + vMin
-
-                    if (dataO_["slwl"] - j.value < 1 && !slwSet) {
-                        j.lineColor = "#EE204D";
-                        slwSet = true;
-                    } else if (dataO_["enwl"] - j.value < 1 && !enwlSet) {
-                        j.lineColor = "#005f00";
-                        enwlSet = true;
-                    } else if (dataO_["enwh"] - j.value < 1 && !enwhSet) {
-                        j.lineColor = "#FFA500";
-                        enwhSet = true;
-
-                    } else if (dataO_["exwl"] - j.value < 1 && !exwlSet) {
-                        j.lineColor = "#F664AF";
-                        exwlSet = true;
-                    }
-
-                    dataO__.push(j)
-                }
-            } else {
-
-                let exwhSet = false;
-                let exwlSet = false;
-                let enwhSet = false;
-                let enwlSet = false;
-                for (let i = 0; i < 11; i++) {
-                    let j = new Object();
-                    j.x = i;
-                    //j.value = Math.pow((i - 500.0) / uDivide, 3.0) + (vDiff / 2.0) + vMin;
-                    j.value = i * ((vMax - vMin) / 10) + vMin
-
-                    if (dataO_["exwh"] - j.value < 1 && !exwhSet) {
-                        j.lineColor = "#F664AF";
-                        exwhSet = true;
-                    } else if (dataO_["exwl"] - j.value < 1 && !exwlSet) {
-                        j.lineColor = "#FFA500";
-                        exwlSet = true;
-                    } else if (dataO_["enwh"] - j.value < 1 && !enwhSet) {
-                        j.lineColor = "#005f00";
-                        enwhSet = true;
-
-                    } else if (dataO_["enwl"] - j.value < 1 && !enwlSet) {
-                        j.lineColor = "#EE204D";
-                        enwlSet = true;
-                    }
-
-                    dataO__.push(j)
-                }
-            }
+        rangeAreaChart: function(data_, divName) {
 
             // Themes begin
             am4core.useTheme(am4themes_animated);
             // Themes end
 
             var chart = am4core.create(divName, am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.dateFormats.setKey("day", "MMMM dt");
+
+            let data = []
+            let data__ = data_[0]
+
+            for (let i = 0, j = data__["slw"].length - 1; i < data__["slw"].length, j > -1; i++, j--) {
+                let da = new Date()
+                let dataDa = data__.date[i].split("-") //2020-05-06
+                da.setDate(dataDa[2])
+                da.setMonth(dataDa[1] - 1)
+                da.setYear(dataDa[0])
+                /*if (new Date().getHours() < 13) {
+                    da = new Date()
+                    da.setDate(da.getDate() - j - 1)
+
+                } else {
+                    da = new Date()
+                    da.setDate(da.getDate() - j)
+                }*/
+
+                if (data__["slw"].length == 1) {
+                    da__ = new Date(da)
+                    da__.setHours(4)
+                    da.setHours(3)
+                    dateAxis.baseInterval = {
+                        "timeUnit": "hour",
+                        "count": 1
+                    }
+                    dateAxis.dateFormats.setKey("hour", "MMMM dt");
+                    //dateAxis.groupData = true;
+                    //dateAxis.minZoomCount = 5;
+                    //dateAxis.groupIntervals.setAll([
+                    //  { timeUnit: "month", count: 1 },
+                    //{ timeUnit: "day", count: 1 },
+                    //{ timeUnit: "hour", count: 1 }
+                    //]);
+                    //dateAxis.groupData = true;
+                    //dateAxis.renderer.maxGridDistance = 15;
+                    //dateAxis.dateFormats.setKey("day", "MMMM dt");
+                    data.push({
+                        date: da__,
+                        slw: data__.slw[i],
+                        enwl: data__.enwl[i],
+                        enwh: data__.enwh[i],
+                        exwl: data__.exwl[i],
+                        exwh: data__.exwh[i],
+                        close: data__.close[i],
+                        high: data__.high[i],
+                        low: data__.low[i]
+                    });
+
+                }
+                data.push({
+                    date: da,
+                    slw: data__.slw[i],
+                    enwl: data__.enwl[i],
+                    enwh: data__.enwh[i],
+                    exwl: data__.exwl[i],
+                    exwh: data__.exwh[i],
+                    close: data__.close[i],
+                    high: data__.high[i],
+                    low: data__.low[i]
+                });
+            }
+
             var title = chart.titles.create();
-            title.text = dataO_["symbol"];
-            title.fill = am4core.color("#FFFFFF");
-            //title.fontSize = 25;
-            //title.marginBottom = 30;
+            title.text = data__["symbol"] + "\n" + "trend: " + data__["trend"];
+            if (data__["color"] == "#F664AF") {
+                title.text += "\nComment: Trade in Profit Range"
+            } else if (data__["color"] == "#FCE883") {
+                title.text += "\nComment: Trend Change"
+            } else if (data__["color"] == "#00FF00") {
+                title.text += "\nComment: Entry Day"
+            } else if (data__["color"] == "#EE204D") {
+                title.text += "\nComment: No Entry for Trade"
+            }
 
-            var data = [];
+            chart.data = data;
 
-            chart.data = dataO__;
-
-            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-            categoryAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
-
-            //categoryAxis.renderer.grid.template.location = 0;
-            //categoryAxis.renderer.ticks.template.disabled = true;
-            //categoryAxis.renderer.line.opacity = 0;
-            //categoryAxis.renderer.grid.template.disabled = true;
-            //categoryAxis.renderer.minGridDistance = 40;
-            categoryAxis.dataFields.category = "x";
-            //categoryAxis.startLocation = 0.4;
-            //categoryAxis.endLocation = 0.6;
-            categoryAxis.renderer.labels.template.disabled = true;
 
 
             var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis.renderer.labels.template.fill = am4core.color("#FFFFFF");
             valueAxis.tooltip.disabled = true;
-            valueAxis.renderer.line.opacity = 1;
-            valueAxis.renderer.ticks.template.disabled = true;
 
-            valueAxis.max = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] > dataO_[b] ? a : b })]
-            valueAxis.min = dataO_[Object.keys(dataO_).reduce(function(a, b) { return dataO_[a] < dataO_[b] ? a : b })]
+            function createSeries(field, openField, name, color, strokeColor) {
+                var series = chart.series.push(new am4charts.LineSeries());
 
-            var lineSeries = chart.series.push(new am4charts.LineSeries());
-            lineSeries.dataFields.categoryX = "x";
-            lineSeries.dataFields.valueY = "value";
-            lineSeries.tooltipText = "$: {valueY.value}";
-            lineSeries.fillOpacity = 1;
-            lineSeries.strokeWidth = 3;
-            lineSeries.propertyFields.stroke = "lineColor";
-            lineSeries.propertyFields.fill = "lineColor";
+                series.dataFields.dateX = "date";
+                series.dataFields.openValueY = openField;
+                series.dataFields.valueY = field;
+                series.name = name
+                series.sequencedInterpolation = true;
+                series.fillOpacity = 0.3;
+                series.fill = am4core.color(color)
+                series.defaultState.transitionDuration = 1000;
+                series.tensionX = 0.8;
+                series.tooltipText = "[b]{valueY}[/]";
+                series.stroke = am4core.color(strokeColor);
 
-            // var bullet = lineSeries.bullets.push(new am4charts.CircleBullet());
-            //bullet.circle.radius = 6;
-            //bullet.circle.fill = am4core.color("#fff");
-            //bullet.circle.strokeWidth = 3;
+                // Set up tooltip
+                series.adapter.add("tooltipText", function(ev) {
+                    var text = "";
+                    chart.series.each(function(item) {
+                        text += "[" + item.stroke.hex + "]●[/] " + item.name + ": {" + item.dataFields.valueY + "}\n";
+                    });
+                    return text;
+                });
+
+                series.tooltip.getFillFromObject = false;
+                series.tooltip.background.fill = am4core.color("#fff");
+                series.tooltip.label.fill = am4core.color("#00");
+
+                if (name == "close") {
+                    series.fillOpacity = 0;
+                    series.tensionX = 1;
+                    //series.strokeDasharray = [5]
+                    series.strokeWidth = 5
+                } else if (name == "high") {
+                    series.fillOpacity = 0;
+                    series.tensionX = 1;
+                    series.strokeDasharray = [5]
+                    series.strokeWidth = 5
+                } else if (name == "low") {
+                    series.fillOpacity = 0;
+                    series.tensionX = 1;
+                    series.strokeDasharray = [10]
+                    series.strokeWidth = 5
+                }
+                var bullet = series.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.stroke = am4core.color("#fff");
+                bullet.circle.strokeWidth = 2;
+                bullet.circle.fill = series.stroke
+
+                return series;
+
+            }
+
+            createSeries("close", null, "close", null, "#000000")
+            createSeries("high", null, "high", null, "#800080")
+            createSeries("low", null, "low", null, "#00FF00")
+
+            if (data__["LS"] == "L") {
+                createSeries("exwh", "exwl", "exwh", "#F664AF", "#F664AF")
+                createSeries("exwl", "enwh", "exwl", "#FFA500", "#F664AF")
+                createSeries("enwh", "enwl", "enwh", "#005f00", "#005f00")
+                createSeries("enwl", "slw", "enwl", "#EE204D", "#005f00")
+                createSeries("slw", null, "slw", "#FFFFFF", "#EE204D")
+            } else if (data__["LS"] == "S") {
+                createSeries("slw", "enwl", "slw", "#EE204D", "#EE204D")
+                createSeries("enwl", "enwh", "enwl", "#005f00", "#005f00")
+                createSeries("enwh", "exwl", "enwh", "#FFA500", "#005f00")
+                createSeries("exwl", "exwh", "exwl", "#F664AF", "#F664AF")
+                createSeries("exwh", null, "exwh", "#FFFFFF", "#F664AF")
+            }
+
 
             chart.cursor = new am4charts.XYCursor();
-            chart.cursor.behavior = "panX";
-            chart.cursor.lineX.opacity = 0;
-            chart.cursor.lineY.opacity = 0;
-
+            chart.cursor.xAxis = dateAxis;
             chart.scrollbarX = new am4core.Scrollbar();
-            chart.scrollbarX.parent = chart.bottomAxesContainer;
-
-            var range = valueAxis.axisRanges.create();
-            range.value = rClose;
-            range.grid.stroke = am4core.color("#000000");
-            range.grid.strokeWidth = 5;
-            range.grid.strokeOpacity = 1;
-            range.grid.above = true;
-
-
+            chart.cursor.maxTooltipDistance = 0;
 
             chart.legend = new am4charts.Legend();
-            //chart.legend.parent = chart.chartContainer;
-            //chart.legend.background.fill = am4core.color("#0000FF");
-            chart.legend.labels.template.fill = am4core.color("#FFFFFF")
-            //chart.legend.label.fill = "#"
-            //chart.legend.background.fillOpacity = 0.05;
-            //chart.legend.width = 120;
-            chart.legend.data = [{
-                "name": "Slw: " + dataO_["slwl"],
+            /*chart.legend.data = [{
+                "name": "Slw",
                 "fill": "#EE204D"
             }, {
-                "name": "Enw[/]\n" + "Low: " + dataO_["enwl"] + "[/]\nHigh: " + dataO_["enwh"],
+                "name": "Enw",
                 "fill": "#005f00"
             }, {
-                "name": "Exw[/]\n" + "Low: " + dataO_["exwl"] + "[/]\nHigh: " + dataO_["exwh"],
+                "name": "Exw",
                 "fill": "#F664AF"
             }, {
-                "name": "Close: " + rClose,
+                "name": "Close",
                 "fill": "#000000"
-            }];
-
-            chart.legend.position = "top";
-            //chart.legend.contentAlign = "center";
-            //chart.width = am4core.percent(100);
+            }];*/
 
         },
 
 
         dashCharts: function() {
             let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
-            var dashDivElementNameArray = this.createDashDivElements(symbols.length);
+            var dashDivElementNameArray = this.createDashDivElements(symbols);
             $.get("/stock")
                 .done(function(data, status) {
                     let y = []
@@ -510,7 +614,7 @@ var ProfileBase = {
                             let u = ProfileBase.dashboard.getDashObject(item)
                             let tr = []
                             tr.push(u)
-                            ProfileBase.dashboard.areaChart(tr, dashDivElementNameArray[i])
+                            ProfileBase.dashboard.rangeAreaChart(tr, "dashDivCol" + u.symbol)
                             i = i + 1
                             //y.push(u)
                         }
@@ -522,7 +626,7 @@ var ProfileBase = {
         },
 
         getDashObject: function(item) {
-            let u = new Object()
+            /*let u = new Object()
             u.symbol = item["symbol"]
             let v = item["value"]
             let enw = v.split("Enw= ")[1].split(" ")[0].split("(")[1].split(")")[0]
@@ -541,11 +645,13 @@ var ProfileBase = {
 
             u.close = close;
 
-            return u;
+            return u;*/
+            return item;
         },
 
 
-        createDashDivElements: function(length) {
+        createDashDivElements: function(symbols) {
+            let length = symbols.length
             let o = [];
             //let rowCount = 15
             let columnCount = 3;
@@ -556,7 +662,7 @@ var ProfileBase = {
 
                 if (i % columnCount == 0) {
                     let y = document.createElement("div");
-                    divRowName = "dashDivRow" + i;
+                    let divRowName = "dashDivRow" + i;
                     y.id = divRowName;
                     y.classList = "w3-row";
                     dash.appendChild(y);
@@ -564,7 +670,14 @@ var ProfileBase = {
                     for (let j = 0; j < columnCount; j++) {
                         let u = document.createElement("div");
                         u.classList = "w3-col s4 w3-center";
-                        divColName = "dashDivCol" + (i + j);
+
+                        let divColName;
+                        if ((i + j) < cellCount) {
+                            divColName = "dashDivCol" + symbols[i + j];
+                        } else {
+                            divColName = "dashDivCol" + (i + j);
+
+                        }
                         u.id = divColName;
                         u.style.height = "600px"
                         y.appendChild(u);
@@ -576,7 +689,132 @@ var ProfileBase = {
             return o;
         },
 
-        stockColorKey: function(divId) {
+        generateStockList: function() {
+            let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
+            $.get("/stock")
+                .done(function(data, status) {
+                    let dashboardSel = document.getElementById("dashboardList")
+                    let addSel = document.getElementById("addStockList");
+                    let removeSel = document.getElementById("removeStockList");
+                    addSel.innerHTML = "";
+                    removeSel.innerHTML = "";
+                    dashboardSel.innerHTML = '<option value="">Select Graph</option>';
+                    for (let el of data) {
+
+                        if (!symbols.includes(el["symbol"])) {
+                            sOpt = document.createElement("option");
+                            sOpt["value"] = el["symbol"];
+                            sOpt.innerHTML = el["symbol"]
+                            addSel.appendChild(sOpt);
+                        }
+
+                        if (symbols.includes(el["symbol"])) {
+                            sOpt = document.createElement("option");
+                            sOpt["value"] = el["symbol"];
+                            sOpt.innerHTML = el["symbol"]
+                            removeSel.appendChild(sOpt);
+                            sOpt = document.createElement("option");
+                            sOpt["value"] = el["symbol"];
+                            sOpt.innerHTML = el["symbol"]
+                            dashboardSel.appendChild(sOpt);
+                        }
+
+                    }
+                    $(function() {
+                        jcf.replaceAll();
+                    });
+                });
+
+        },
+        addEventListeners: function() {
+
+            document.getElementById("addListButton").addEventListener("click", function() {
+                ProfileBase.dashboard.stockListButtons("add");
+            });
+
+            document.getElementById("removeListButton").addEventListener("click", function() {
+                ProfileBase.dashboard.stockListButtons("remove");
+            });
+
+            document.getElementById("viewDashButton").addEventListener("click", function() {
+                let y = $("#" + "dashboardList").val()
+                window.location.href = "#dashDivCol" + y;
+            });
+        },
+        stockListButtons: function(operation) {
+            vex.dialog.buttons.YES.text = "Yes";
+            vex.dialog.buttons.NO.text = "Cancel";
+            vex.dialog.confirm({
+                message: 'Are you sure you would like to ' + operation + ' these symbols?',
+                callback: function(value) {
+                    if (value) {
+                        let selectedStocks = $("#" + operation + "StockList").val()
+                        if (operation == "add" && ProfileBase.dashboard.subscripCheck(selectedStocks.length)) {
+                            return;
+                        }
+                        vex.dialog.buttons.YES.text = operation;
+                        vex.dialog.prompt({
+                            message: 'Please re-enter your password',
+                            placeholder: 'Password',
+                            callback: function(value) {
+                                if (value) {
+                                    if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
+                                        window.alert("Incorrect Password for user");
+                                        this.open()
+                                    } else {
+
+                                        $.post("/" + operation + "Symbols", {
+                                                "symbols": JSON.stringify(selectedStocks, null, 2)
+                                            })
+                                            .done(function(data, status) {
+                                                vex.dialog.buttons.YES.text = "Okay";
+                                                vex.dialog.alert({
+                                                    message: 'Success!',
+                                                    callback: function(value) {
+                                                        localStorage.setItem("userData", data)
+                                                        ProfileBase.dashboard.generateStockList()
+                                                        ProfileBase.dashboard.dashboardProfile()
+                                                        ProfileBase.dashboard.dashboardStocks()
+                                                        ProfileBase.dashboard.dashCharts()
+                                                    }
+
+                                                })
+
+                                            });
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        },
+
+        subscripCheck: function(lengthOfSymbolsToAdd) {
+            let ou = JSON.parse(String(localStorage.getItem("userData")))["symbols"].length + lengthOfSymbolsToAdd;
+            let subscrip = JSON.parse(String(localStorage.getItem("userData")))["subscriptionType"];
+            let overflow = false;
+            if (subscrip == "Free Subscription" && ou > 2) {
+                overflow = true;
+            } else if (subscrip == "Basic Subscription" && ou > 10) {
+                overflow = true;
+            } else if (subscrip == "Premium Subscription" && ou > 30) {
+                overflow = true;
+            } //else if (subscrip == "Platinum Subscription" && ou > 50) {
+                //overflow = true;
+            //}
+            if (overflow) {
+                vex.dialog.buttons.YES.text = "Okay";
+                vex.dialog.alert('You have reached the limit for your subscription type.')
+            }
+            return overflow;
+
+
+        }
+
+    },
+    stockColorKey: {
+        init: function(divId) {
             let sctColumns = [ //Define Table Columns
                 {
                     title: "Key",
@@ -597,25 +835,17 @@ var ProfileBase = {
                     }
                 },
             ];
-            let sctData = [
-                { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
-                { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
-                { key: "Lime", value: "Low Entry-Level Day", color: "#00FF00" },
-                { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
-                { key: "Purple", value: "Profit Level 2", color: "#800080" },
-                { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
-                { key: "Red", value: "No Entry", color: "#EE204D" },
-            ];
+            let sctData = this.colorKey;
             var SCT = new Tabulator("#" + divId, {
                 tooltips: function(cell) {
                     return cell.getValue();
                 },
-                height: "205px",
+                height: "255px",
                 data: sctData,
                 layout: "fitColumns",
                 rowFormatter: function(row) {
-                    let val = row.getCell("value").getValue();
-                    let c = sctData.find(element => element["value"] == val)["color"].toUpperCase();
+                    let key = row.getCell("key").getValue();
+                    let c = sctData.find(element => element["key"] == key)["color"].toUpperCase();
                     row.getElement().style.backgroundColor = c;
                     if (c == "#000080" || c == "#005F00" || c == "#800080") {
                         row.getElement().style.color = "white";
@@ -625,158 +855,22 @@ var ProfileBase = {
             });
             SCT.redraw()
         },
-
-        generateStockList: function() {
-            let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
-            $.get("/stock")
-                .done(function(data, status) {
-                    let addSel = document.getElementById("addStockList");
-                    let removeSel = document.getElementById("removeStockList");
-                    addSel.innerHTML = "";
-                    removeSel.innerHTML = ""
-                    for (let el of data) {
-
-                        if (!symbols.includes(el["symbol"])) {
-                            sOpt = document.createElement("option");
-                            sOpt["value"] = el["symbol"];
-                            sOpt.innerHTML = el["symbol"]
-                            addSel.appendChild(sOpt);
-                        }
-
-                        if (symbols.includes(el["symbol"])) {
-                            sOpt = document.createElement("option");
-                            sOpt["value"] = el["symbol"];
-                            sOpt.innerHTML = el["symbol"]
-                            removeSel.appendChild(sOpt);
-                        }
-
-                    }
-                    $(function() {
-                        jcf.replaceAll();
-                    });
-                });
-
-        },
-        addEventListeners: function() {
-
-            document.getElementById("addListButton").addEventListener("click", function() {
-                vex.dialog.buttons.YES.text = "Yes";
-                vex.dialog.buttons.NO.text = "Cancel";
-                vex.dialog.confirm({
-                    message: 'Are you sure you would like to add these symbols to your account?',
-                    callback: function(value) {
-                        if (value) {
-                            vex.dialog.buttons.YES.text = "add";
-                            vex.dialog.prompt({
-                                message: 'Please re-enter your password',
-                                placeholder: 'Password',
-                                callback: function(value) {
-                                    if (value) {
-                                        if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
-                                            window.alert("Incorrect Password for user");
-                                            this.open()
-                                        } else {
-                                            let x = $("#addStockList").val()
-                                            if (ProfileBase.dashboard.subscripCheck(x.length)) {
-                                                return;
-                                            }
-                                            $.post("/addSymbols", {
-                                                    "symbols": JSON.stringify(x, null, 2)
-                                                })
-                                                .done(function(data, status) {
-                                                    vex.dialog.buttons.YES.text = "Okay";
-                                                    vex.dialog.alert({
-                                                        message: 'You successfully added the selected symbols!',
-                                                        callback: function(value) {
-                                                            localStorage.setItem("userData", data)
-                                                            ProfileBase.dashboard.generateStockList()
-                                                            ProfileBase.dashboard.dashboardProfile()
-                                                            ProfileBase.dashboard.dashboardStocks()
-                                                            ProfileBase.dashboard.dashCharts()
-                                                        }
-
-                                                    })
-
-                                                });
-                                        }
-                                    }
-                                }
-                            })
-                        }
-                    }
-                })
-
-            });
-
-            document.getElementById("removeListButton").addEventListener("click", function() {
-                vex.dialog.buttons.YES.text = "Yes";
-                vex.dialog.buttons.NO.text = "Cancel";
-                vex.dialog.confirm({
-                    message: 'Are you sure you would like to remove these symbols from your account?',
-                    callback: function(value) {
-                        if (value) {
-                            vex.dialog.buttons.YES.text = "remove";
-                            vex.dialog.prompt({
-                                message: 'Please re-enter your password',
-                                placeholder: 'Password',
-                                callback: function(value) {
-                                    if (value) {
-                                        if (value != JSON.parse(String(localStorage.getItem("userData")))["password"]) {
-                                            window.alert("Incorrect Password for user");
-                                            this.open()
-                                        } else {
-                                            let y = $("#removeStockList").val()
-                                            $.post("/removeSymbols", {
-                                                    "symbols": JSON.stringify(y, null, 2)
-                                                })
-                                                .done(function(data, status) {
-                                                    vex.dialog.buttons.YES.text = "Okay";
-                                                    vex.dialog.alert({
-                                                        message: 'You successfully removed the selected symbols!',
-                                                        callback: function(value) {
-                                                            localStorage.setItem("userData", data)
-                                                            ProfileBase.dashboard.generateStockList()
-                                                            ProfileBase.dashboard.dashboardProfile()
-                                                            ProfileBase.dashboard.dashboardStocks()
-                                                            ProfileBase.dashboard.dashCharts()
-                                                        }
-
-                                                    })
-
-                                                });
-                                        }
-                                    }
-                                }
-                            })
-                        }
-                    }
-                })
-            });
-
+        returnColorKey: function(){
+            return this.colorKey;
         },
 
-        subscripCheck: function(lengthOfSymbolsToAdd) {
-            let ou = JSON.parse(String(localStorage.getItem("userData")))["symbols"].length + lengthOfSymbolsToAdd;
-            let subscrip = JSON.parse(String(localStorage.getItem("userData")))["subscriptionType"];
-            let overflow = false;
-            if (subscrip == "Free Subscription" && ou > 2) {
-                overflow = true;
-            } else if (subscrip == "Basic Subscription" && ou > 10) {
-                overflow = true;
-            } else if (subscrip == "Premium Subscription" && ou > 30) {
-                overflow = true;
-            } else if (subscrip == "Platinum Subscription" && ou > 50) {
-                overflow = true;
-            }
-            if (overflow) {
-                vex.dialog.buttons.YES.text = "Okay";
-                vex.dialog.alert('You have reached the limit for your subscription type.')
-            }
-            return overflow;
-
-
-        }
-
+        colorKey: [
+            { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
+            { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
+            { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
+            { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
+            { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
+            { key: "Purple", value: "Profit Level 2", color: "#800080" },
+            { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
+            { key: "Red", value: "No Entry", color: "#EE204D" },
+            { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
+            { key: "Light Blue", value: "Short Entry Region", color: "#1F75FE" }
+        ]
     }
 
 }

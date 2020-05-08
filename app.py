@@ -16,16 +16,8 @@ app.config['MONGODB_SETTINGS'] = {
     "db": "stockenex",
 }
 db = MongoEngine(app)
-app.session_interface = MongoEngineSessionInterface(db)#MongoDBSessionInterface(app, db, 'sessions')
+app.session_interface = MongoEngineSessionInterface(db)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
-# app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
-
-# cache = Cache(app.server, config={
-# 'CACHE_TYPE': 'simple'
-# })
-
-# cache.clear()
 
 CORS(app)
 app.register_blueprint(home_bp)

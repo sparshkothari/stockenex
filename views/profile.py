@@ -13,7 +13,6 @@ profile_bp = Blueprint('profile_bp', __name__)
 
 @profile_bp.route('/profile', methods=['GET', 'POST'])
 def profile():
-    # import pdb; pdb.set_trace()
     if "logged_in" not in session.keys() or not session["logged_in"]:
         return redirect(url_for('home_bp.login'))
     userData = json.loads(session["userData"])

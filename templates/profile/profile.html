@@ -10,9 +10,9 @@
     <div id="main" class="m-scene">
         <div class="w3-container w3-center" style="background-color: black">
             <div class="w3-bar w3-center" style="font-family:BI; color:white; background-color: black;">
-                <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('Profile')">{{ userData.name }}'s Profile | </button>
-                <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('StockTable')">{{ userData.name }}'s Stock Portfolio | </button>
-                <button style="" class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('FullDashboard')">{{ userData.name }}'s Dashboard</button>
+                <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('Profile')">{{ userData.name }}'s Profile </button>
+                <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('StockTable')">{{ userData.name }}'s Stock Portfolio </button>
+                <!--<button style="" class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('FullDashboard')">{{ userData.name }}'s Dashboard</button>!-->
             </div>
         </div>
         <div id="Welcome" class="pTab w3-display-middle">
@@ -107,6 +107,6 @@
     <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
     </div>
     <script src="/static/js/profile.js"></script>
-    <script src="/static/js/main.js"></script>
+    <script data-main="/static/js/main" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 </body>
 {% endblock %}

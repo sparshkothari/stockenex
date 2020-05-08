@@ -1,3 +1,7 @@
+define(function() {
+    ProfileBase.init()
+});
+
 var ProfileBase = {
 
     init: function() {
@@ -109,7 +113,7 @@ var ProfileBase = {
 
             this.dashboardStocks();
             this.dashboardProfile();
-            this.dashCharts();
+            //this.dashCharts();
             this.generateStockList();
             this.addEventListeners();
 
@@ -281,7 +285,7 @@ var ProfileBase = {
                         let y = document.createElement('div');
                         y.id = "individualChart";
                         y.classList.add("w3-animate-opacity");
-                        y.style = "text-align:center; animation-duration:3s; width:33%; height: 600px; margin-left: auto; margin-right: auto";
+                        y.style = "text-align:center; animation-duration:3s; width:70%; height: 600px; margin-left: auto; margin-right: auto";
                         z.appendChild(y);
                         let sy = cell.getRow().getCell("symbol").getValue();
                         let val = cell.getRow().getCell("value").getValue();
@@ -615,7 +619,7 @@ var ProfileBase = {
         createDashDivElements: function(symbols) {
             let length = symbols.length
             let o = [];
-            let columnCount = 3;
+            let columnCount = 2;
             let cellCount = length;
             let dash = document.getElementById("dashRows");
             dash.innerHTML = "";
@@ -630,7 +634,7 @@ var ProfileBase = {
 
                     for (let j = 0; j < columnCount; j++) {
                         let u = document.createElement("div");
-                        u.classList = "w3-col s4 w3-center";
+                        u.classList = "w3-col s" + 12/columnCount + " w3-center";
 
                         let divColName;
                         if ((i + j) < cellCount) {
@@ -736,7 +740,7 @@ var ProfileBase = {
                                                         ProfileBase.dashboard.generateStockList()
                                                         ProfileBase.dashboard.dashboardProfile()
                                                         ProfileBase.dashboard.dashboardStocks()
-                                                        ProfileBase.dashboard.dashCharts()
+                                                        //ProfileBase.dashboard.dashCharts()
                                                     }
 
                                                 })
@@ -800,7 +804,7 @@ var ProfileBase = {
                 tooltips: function(cell) {
                     return cell.getValue();
                 },
-                height: "255px",
+                height: "280px",
                 data: sctData,
                 layout: "fitColumns",
                 rowFormatter: function(row) {
@@ -821,15 +825,16 @@ var ProfileBase = {
 
         colorKey: [
             { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
+            { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
+            { key: "Blue", value: "Short Entry Region", color: "#1F75FE" },
             { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
             { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
             { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
             { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
             { key: "Purple", value: "Profit Level 2", color: "#800080" },
             { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
-            { key: "Red", value: "No Entry", color: "#EE204D" },
-            { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
-            { key: "Light Blue", value: "Short Entry Region", color: "#1F75FE" }
+            { key: "Red", value: "No Entry", color: "#EE204D" }
+
         ]
     }
 

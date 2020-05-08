@@ -27,7 +27,6 @@ var Register = {
                     })
                 })
                 .fail(function() {
-                    //console.log("fail")
                     vex.dialog.buttons.YES.text = "Okay";
                     vex.dialog.alert('The chosen username is already registered.');
 

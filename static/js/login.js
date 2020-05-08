@@ -23,7 +23,6 @@ var Login = {
                     })
                 })
                 .fail(function() {
-                    //console.log("fail")
                     vex.dialog.buttons.YES.text = "Okay";
                     vex.dialog.alert('Username or password is incorrect.');
 

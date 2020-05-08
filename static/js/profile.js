@@ -800,9 +800,9 @@ var ProfileBase = {
                 overflow = true;
             } else if (subscrip == "Premium Subscription" && ou > 30) {
                 overflow = true;
-            } else if (subscrip == "Platinum Subscription" && ou > 50) {
-                overflow = true;
-            }
+            } //else if (subscrip == "Platinum Subscription" && ou > 50) {
+                //overflow = true;
+            //}
             if (overflow) {
                 vex.dialog.buttons.YES.text = "Okay";
                 vex.dialog.alert('You have reached the limit for your subscription type.')

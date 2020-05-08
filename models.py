@@ -1,11 +1,11 @@
-from mongoengine import Document, StringField, ListField, FloatField
+from mongoengine import Document, StringField, ListField, FloatField, EmailField
 
 
 class User(Document):
-    name = StringField(default="Who really am I?")
+    name = StringField(required=True)
     username = StringField(required=True)
-    password = StringField(default="00")
-    email = StringField(default="s@gmail.com")
+    password = StringField(required=True)
+    email = EmailField(required=True)
     symbols = ListField(StringField())
     subscriptionType = StringField(default="Free Subscription")
 

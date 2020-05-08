@@ -24,13 +24,13 @@ def register():
         password = request.form["password"]
         email = request.form["email"]
         if User.objects(Q(username=username)):
-            abort(400)
+            return Response(json.dumps([]), 400)
         u = User(name=name, username=username, password=password, email=email)
         u.save()
         userData = u.to_json()
         session["userData"] = userData
         session["logged_in"] = True
-        return redirect(url_for('profile_bp.profile'))
+        return Response(userData, 200)
 
 
 @home_bp.route('/about', methods=['GET'])
@@ -49,13 +49,14 @@ def login():
     if request.method == 'POST':
         u = User.objects(Q(username=request.form['username']) & Q(password=request.form['password'])).first()
         if not u:
-            error = 'Invalid username or password'
+            return Response(json.dumps([]), 401)
         else:
             session['logged_in'] = True
-            session["userData"] = u.to_json()
-            flash('You are logged in')
-            return redirect(url_for('profile_bp.profile'))
-    return render_template('home/login.html', error=error)
+            userData = u.to_json()
+            session["userData"] = userData
+            #flash('You are logged in')
+            return Response(userData, 200)
+    return render_template('home/login.html')
 
 
 @home_bp.route('/logout')

@@ -32,7 +32,7 @@ var ProfileBase = {
             let uatColumns = [{
                     title: "Item",
                     field: "Item",
-                    hozAlign: "center",
+                    align: "center",
                     width: 200,
                     formatter: function(cell) {
                         cell.getElement().style.height = "25px"
@@ -42,7 +42,7 @@ var ProfileBase = {
                 {
                     title: "Value",
                     field: "Value",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: function(cell) {
                         cell.getElement().style.height = "25px"
                         return cell.getValue()
@@ -171,13 +171,13 @@ var ProfileBase = {
                 tabColumns.push({
                     title: "color",
                     field: "color",
-                    hozAlign: "center",
+                    align: "center",
                     visible: false
                 });
                 tabColumns.push({
                     title: "symbol",
                     field: "symbol",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: function(cell, formatterParams, onRendered) {
                         if (cell.getValue()) {
                             color = cell.getRow().getData().color;//cell.getRow().getCell("color").getValue();
@@ -219,7 +219,7 @@ var ProfileBase = {
                     tabColumns.push({
                         title: new legendCMap().returnValue(color),
                         field: color,
-                        hozAlign: "center",
+                        align: "center",
                         formatter: function(cell, formatterParams, onRendered) {
                             if (cell.getValue()) {
                                 cell.getElement().style.backgroundColor = color;
@@ -252,76 +252,76 @@ var ProfileBase = {
             let ustColumns = [{
                     title: "Value",
                     field: "value",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "slw",
                     field: "slw",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "enwl",
                     field: "enwl",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "enwh",
                     field: "enwh",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "exwl",
                     field: "exwl",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "exwh",
                     field: "exwh",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "high",
                     field: "high",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "low",
                     field: "low",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "close",
                     field: "close",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "date",
                     field: "date",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 }, {
                     title: "LS",
                     field: "LS",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
@@ -329,7 +329,7 @@ var ProfileBase = {
                 {
                     title: "",
                     field: "viewGraph",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     width: 50,
                     cellClick: function(e, cell) {
@@ -387,43 +387,43 @@ var ProfileBase = {
                 {
                     title: "symbol",
                     field: "symbol",
-                    hozAlign: "center",
+                    align: "center",
                     width: 75
                 },
                 {
                     title: "trend",
                     field: "trend",
-                    hozAlign: "middle",
+                    align: "middle",
                     width: 75
                 },
                 {
                     title: "enw",
                     field: "enw",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 },
                 {
                     title: "exw",
                     field: "exw",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 },
                 {
                     title: "slw",
                     field: "slwLast",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 },
                 {
                     title: "close",
                     field: "closeLast",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 },
                 {
                     title: "low—high",
                     field: "lowHigh",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 }
 
@@ -856,7 +856,7 @@ var ProfileBase = {
             let sctColumns = [{
                     title: "Key",
                     field: "key",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: function(cell) {
                         cell.getElement().style.height = "25px"
                         return cell.getValue()
@@ -865,7 +865,7 @@ var ProfileBase = {
                 {
                     title: "Value",
                     field: "value",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: function(cell) {
                         cell.getElement().style.height = "25px"
                         return cell.getValue()

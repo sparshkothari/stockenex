@@ -7,7 +7,12 @@ var ProfileBase = {
     init: function() {
         $.get("/user")
             .done(function(data, status) {
-                localStorage.setItem("userData", JSON.stringify(data, null, 2))
+                    if (typeof(data) == "string"){
+                        data = data;
+                    }else{
+                        data = JSON.stringify(data, null, 2);
+                    }
+                localStorage.setItem("userData", data);//JSON.stringify(data, null, 2))
                 ProfileBase.profile.init()
                 ProfileBase.subscrip.init()
                 ProfileBase.stockColorKey.init("stockColorKey")
@@ -378,7 +383,12 @@ var ProfileBase = {
             let ustData = []
             $.get("/stock")
                 .done(function(data, status) {
-                    var data_ = data;
+                    let data_;
+                    if (typeof(data) == "string"){
+                        data_ = JSON.parse(data);
+                    }else{
+                        data_ = data;
+                    }
                     for (let item of data_) {
                         if (symbols.includes(item["symbol"])) {
                             let u = new Object()
@@ -429,7 +439,12 @@ var ProfileBase = {
         dashboardStocks: function() {
             $.get("/stock")
                 .done(function(data, status) {
-                    var data_ = data;
+                    let data_;
+                    if (typeof(data) == "string"){
+                        data_ = JSON.parse(data);
+                    }else{
+                        data_ = data;
+                    }
                     ProfileBase.dashboard.dashboardStocksTabulator(data_);
                 });
         },
@@ -599,6 +614,11 @@ var ProfileBase = {
             $.get("/stock")
                 .done(function(data, status) {
                     let i = 0;
+                    if (typeof(data) == "string"){
+                        data = JSON.parse(data);
+                    }else{
+                        data = data;
+                    }
                     for (let item of data) {
                         if (symbols.includes(item["symbol"])) {
                             let u = ProfileBase.dashboard.getDashObject(item)
@@ -658,6 +678,11 @@ var ProfileBase = {
             let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
             $.get("/stock")
                 .done(function(data, status) {
+                    if (typeof(data) == "string"){
+                        data = JSON.parse(data);
+                    }else{
+                        data = data;
+                    }
                     let dashboardSel = document.getElementById("dashboardList")
                     let addSel = document.getElementById("addStockList");
                     let removeSel = document.getElementById("removeStockList");

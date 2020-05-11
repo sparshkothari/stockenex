@@ -7,12 +7,12 @@ var ProfileBase = {
     init: function() {
         $.get("/user")
             .done(function(data, status) {
-                    if (typeof(data) == "string"){
-                        data = data;
-                    }else{
-                        data = JSON.stringify(data, null, 2);
-                    }
-                localStorage.setItem("userData", data);//JSON.stringify(data, null, 2))
+                if (typeof(data) == "string") {
+                    data = data;
+                } else {
+                    data = JSON.stringify(data, null, 2);
+                }
+                localStorage.setItem("userData", data); //JSON.stringify(data, null, 2))
                 ProfileBase.profile.init()
                 ProfileBase.subscrip.init()
                 ProfileBase.stockColorKey.init("stockColorKey")
@@ -115,40 +115,22 @@ var ProfileBase = {
     dashboard: {
 
         init: function() {
+            $.get("/isMobile")
+                .done(function(data, status) {
+                    if (typeof(data) == "string") {
+                        data = JSON.parse(data);
+                    }
+                    ProfileBase.dashboard.dashboardStocks(data["isMobile"]);
+                    ProfileBase.dashboard.dashboardProfile();
+                    //ProfileBase.dashboard.dashCharts();
+                    ProfileBase.dashboard.generateStockList();
+                    ProfileBase.dashboard.addEventListeners();
+                });
 
-            this.dashboardStocks();
-            this.dashboardProfile();
-            //this.dashCharts();
-            this.generateStockList();
-            this.addEventListeners();
 
         },
 
-        dashboardStocksTabulator: function(data) {
-            var uniqueColors = data.reduce(function(a, b) {
-                if (a[b['color']]) {
-                    a[b['color']].push({ value: b['value'], symbol: b['symbol'] })
-                } else {
-                    a[b['color']] = [{ value: b['value'], symbol: b['symbol'] }]
-                }
-                return a
-            }, {});
-            let y = Object.values(uniqueColors).map(function(a) { return a.length; }).indexOf(Math.max.apply(Math, Object.values(uniqueColors).map(function(a) { return a.length; })));
-            let maxColumnIndex = Object.keys(uniqueColors).length
-            let maxRowIndex = Object.values(uniqueColors)[y].length
-            var tabData = []
-            var tabColumns = []
-            for (let i = 0; i < maxRowIndex; i++) {
-                let row = new Object()
-                for (let color of Object.keys(uniqueColors)) {
-                    if (uniqueColors[color].length > i) {
-                        row[color] = uniqueColors[color][i]["symbol"]
-                    } else {
-                        row[color] = ""
-                    }
-                }
-                tabData.push(row)
-            }
+        dashboardStocksTabulator: function(data, isMobile) {
 
             let legendCMap = function() {
                 let i = ProfileBase.stockColorKey.returnColorKey();
@@ -163,20 +145,43 @@ var ProfileBase = {
 
             }
 
+            var uniqueColors = data.reduce(function(a, b) {
+                if (a[b['color']]) {
+                    a[b['color']].push({ value: b['value'], symbol: b['symbol'] })
+                } else {
+                    a[b['color']] = [{ value: b['value'], symbol: b['symbol'] }]
+                }
+                return a
+            }, {});
 
-            for (let color of Object.keys(uniqueColors)) {
+            let y = Object.values(uniqueColors).map(function(a) { return a.length; }).indexOf(Math.max.apply(Math, Object.values(uniqueColors).map(function(a) { return a.length; })));
+            let maxColumnIndex = Object.keys(uniqueColors).length
+            let maxRowIndex = Object.values(uniqueColors)[y].length
+            var tabData = []
+            var tabColumns = []
+            if (isMobile) {
+                for (let color of Object.keys(uniqueColors)) {
+                    for (let k = 0; k < uniqueColors[color].length; k++) {
+                        let row = new Object()
+                        row["symbol"] = uniqueColors[color][k]["symbol"]
+                        row["color"] = color
+                        tabData.push(row);
+                    }
+                }
                 tabColumns.push({
-                    title: new legendCMap().returnValue(color),
-                    field: color,
+                    title: "color",
+                    field: "color",
+                    hozAlign: "center",
+                    visible: false
+                });
+                tabColumns.push({
+                    title: "symbol",
+                    field: "symbol",
                     hozAlign: "center",
                     formatter: function(cell, formatterParams, onRendered) {
-                        let sy = JSON.parse(localStorage.getItem("userData"))["symbols"]
                         if (cell.getValue()) {
-                            if (sy.includes(cell.getValue())) {
-                                cell.getElement().style.backgroundColor = "#C0C0C0";
-                            } else {
-                                cell.getElement().style.backgroundColor = color;
-                            }
+                            color = cell.getRow().getData().color;//cell.getRow().getCell("color").getValue();
+                            cell.getElement().style.backgroundColor = color;
                             if (color == "#000080" || color == "#005f00" || color == "#800080") {
                                 cell.getElement().style.color = "white";
                             }
@@ -185,16 +190,59 @@ var ProfileBase = {
                         }
                         return cell.getValue();
                     }
-                })
+                });
+
+                var CCT = new Tabulator("#dashboardStocksTabulator", {
+                    //headerVisible:false,
+                    height: "100%",
+                    data: tabData,
+                    layout: "fitColumns",
+                    columns: tabColumns,
+                });
+                CCT.redraw()
+
+            } else {
+
+                for (let i = 0; i < maxRowIndex; i++) {
+                    let row = new Object()
+                    for (let color of Object.keys(uniqueColors)) {
+                        if (uniqueColors[color].length > i) {
+                            row[color] = uniqueColors[color][i]["symbol"]
+                        } else {
+                            row[color] = ""
+                        }
+                    }
+                    tabData.push(row)
+                }
+
+                for (let color of Object.keys(uniqueColors)) {
+                    tabColumns.push({
+                        title: new legendCMap().returnValue(color),
+                        field: color,
+                        hozAlign: "center",
+                        formatter: function(cell, formatterParams, onRendered) {
+                            if (cell.getValue()) {
+                                cell.getElement().style.backgroundColor = color;
+                                if (color == "#000080" || color == "#005f00" || color == "#800080") {
+                                    cell.getElement().style.color = "white";
+                                }
+                            } else {
+                                cell.getElement().style.backgroundColor = "black";
+                            }
+                            return cell.getValue();
+                        }
+                    })
+                }
+                var CCT = new Tabulator("#dashboardStocksTabulator", {
+                    //headerVisible:false,
+                    height: "100%",
+                    data: tabData,
+                    layout: "fitColumns",
+                    columns: tabColumns,
+                });
+                CCT.redraw()
+
             }
-            var CCT = new Tabulator("#dashboardStocksTabulator", {
-                //headerVisible:false,
-                height: "100%",
-                data: tabData,
-                layout: "fitColumns",
-                columns: tabColumns,
-            });
-            CCT.redraw()
         },
 
         dashboardProfile: function() {
@@ -384,9 +432,9 @@ var ProfileBase = {
             $.get("/stock")
                 .done(function(data, status) {
                     let data_;
-                    if (typeof(data) == "string"){
+                    if (typeof(data) == "string") {
                         data_ = JSON.parse(data);
-                    }else{
+                    } else {
                         data_ = data;
                     }
                     for (let item of data_) {
@@ -436,16 +484,16 @@ var ProfileBase = {
                 });
         },
 
-        dashboardStocks: function() {
+        dashboardStocks: function(isMobile) {
             $.get("/stock")
                 .done(function(data, status) {
                     let data_;
-                    if (typeof(data) == "string"){
+                    if (typeof(data) == "string") {
                         data_ = JSON.parse(data);
-                    }else{
+                    } else {
                         data_ = data;
                     }
-                    ProfileBase.dashboard.dashboardStocksTabulator(data_);
+                    ProfileBase.dashboard.dashboardStocksTabulator(data_, isMobile);
                 });
         },
 
@@ -614,9 +662,9 @@ var ProfileBase = {
             $.get("/stock")
                 .done(function(data, status) {
                     let i = 0;
-                    if (typeof(data) == "string"){
+                    if (typeof(data) == "string") {
                         data = JSON.parse(data);
-                    }else{
+                    } else {
                         data = data;
                     }
                     for (let item of data) {
@@ -654,7 +702,7 @@ var ProfileBase = {
 
                     for (let j = 0; j < columnCount; j++) {
                         let u = document.createElement("div");
-                        u.classList = "w3-col s" + 12/columnCount + " w3-center";
+                        u.classList = "w3-col s" + 12 / columnCount + " w3-center";
 
                         let divColName;
                         if ((i + j) < cellCount) {
@@ -678,9 +726,9 @@ var ProfileBase = {
             let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
             $.get("/stock")
                 .done(function(data, status) {
-                    if (typeof(data) == "string"){
+                    if (typeof(data) == "string") {
                         data = JSON.parse(data);
-                    }else{
+                    } else {
                         data = data;
                     }
                     let dashboardSel = document.getElementById("dashboardList")

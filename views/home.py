@@ -9,9 +9,23 @@ import json
 home_bp = Blueprint('home_bp', __name__)
 
 
-@home_bp.route('/', methods=['GET', 'POST'])
+@home_bp.route('/', methods=['GET'])
 def index():
+    if "m" in request.args:
+        if request.args["m"] == "true":
+            session["isMobile"] = True
+        else:
+            session["isMobile"] = False
     return render_template("home/index.html")
+
+
+@home_bp.route('/isMobile', methods=['GET'])
+def isMobile():
+    sessionIsMobile = False
+    if "isMobile" in session.keys():
+        sessionIsMobile = session["isMobile"]
+    e = json.dumps({"isMobile": sessionIsMobile})
+    return Response(e, 200)
 
 
 @home_bp.route('/register', methods=['GET', 'POST'])
@@ -54,7 +68,7 @@ def login():
             session['logged_in'] = True
             userData = u.to_json()
             session["userData"] = userData
-            #flash('You are logged in')
+            # flash('You are logged in')
             return Response(userData, 200)
     return render_template('home/login.html')
 

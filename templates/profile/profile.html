@@ -13,6 +13,9 @@
                 <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('Profile')">{{ userData.name }}'s Profile </button>
                 <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('StockTable')">{{ userData.name }}'s Stock Portfolio </button>
                 <!--<button style="" class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('FullDashboard')">{{ userData.name }}'s Dashboard</button>!-->
+                {% if session.isMobile%}
+                <button class="w3-bar-item w3-button w3-hover-blue w3-center" onclick="openDTab('mobileDash')">Dashboard</button>
+                {% endif %}
             </div>
         </div>
         <div id="Welcome" class="pTab w3-display-middle">
@@ -41,6 +44,7 @@
                 </div>
             </div>
         </div>
+        {% if not session.isMobile%}
         <div id="StockTable" class="pTab" style="display:none">
             <h1 style="text-align:center" class="h2 scene_element scene_element--fadein">{{ userData.name }}'s Stock Portolio</h1><br>
             <div class="w3-row w3-center" style="text-align:center;">
@@ -69,6 +73,36 @@
                 </div>
             </div>
         </div>
+        {% else %}
+        <div id="StockTable" class="pTab" style="display:none">
+            <h1 style="text-align:center" class="h2 scene_element scene_element--fadein">{{ userData.name }}'s Stock Portolio</h1><br>
+            <div class="w3-row w3-center" style="text-align:center;">
+                <div class="w3-col s6 w3-center">
+                    <div style="font-family:BI" class="scene_element scene_element--fadeinleft">
+                        <button id="addListButton" type="button">Add</button>
+                        <br>
+                        <select multiple id="addStockList" class="scene_element scene_element--fadeinleft" placeholder="Select Stocks" data-jcf='{"wrapNative": false, "wrapNativeOnMobile": false, "useCustomScroll": true, "multipleCompactStyle": true}'></select>
+                        <br>
+                        <button id="removeListButton" type="button">Remove</button>
+                        <br>
+                        <select multiple id="removeStockList" class="scene_element scene_element--fadeinleft" placeholder="Select Stocks" data-jcf='{"wrapNative": false, "wrapNativeOnMobile": false, "useCustomScroll": true, "multipleCompactStyle": true}'></select>
+                    </div>
+                </div>
+                <div class="w3-col s6 w3-center">
+                    <div id="stockColorKey" class="scene_element scene_element--fadeinleft" style="margin-left: auto;
+    margin-right: auto; font-family: BI; width:400px"></div>
+                </div>
+            </div>
+            <div class="w3-row">
+                <div class="w3-col s12 w3-center">
+                    <div id="userST" class="scene_element scene_element--fadeinleft" style="font-family: BI"></div>
+                </div>
+            </div>
+        </div>
+        <div id="mobileDash" class="pTab" style="display:none">
+            <div id="dashboardStocksTabulator" class="scene_element scene_element--fadeinup" style="font-size: medium; font-family: BI; width:100%"></div>
+        </div>
+        {% endif %}
         <div id="IndividualDashboard" class="pTab" style="background-color:white; display: none; font-family: BI">
         </div>
         <div id="FullDashboard" class="pTab" style="background-color:white; display: none; font-family: BI;">

@@ -180,9 +180,9 @@ var ProfileBase = {
                     align: "center",
                     formatter: function(cell, formatterParams, onRendered) {
                         if (cell.getValue()) {
-                            color = cell.getRow().getData().color;//cell.getRow().getCell("color").getValue();
-                            cell.getElement().style.backgroundColor = color;
-                            if (color == "#000080" || color == "#005f00" || color == "#800080") {
+                            c = cell.getRow().getData().color;//cell.getRow().getCell("color").getValue();
+                            cell.getElement().style.backgroundColor = c;
+                            if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                                 cell.getElement().style.color = "white";
                             }
                         } else {
@@ -223,7 +223,7 @@ var ProfileBase = {
                         formatter: function(cell, formatterParams, onRendered) {
                             if (cell.getValue()) {
                                 cell.getElement().style.backgroundColor = color;
-                                if (color == "#000080" || color == "#005f00" || color == "#800080") {
+                                if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(color.toUpperCase())) {
                                     cell.getElement().style.color = "white";
                                 }
                             } else {
@@ -474,7 +474,7 @@ var ProfileBase = {
                             let val = row.getCell("value").getValue();
                             let c = data_.find(element => element["value"] == val)["color"].toUpperCase();
                             row.getElement().style.backgroundColor = c;
-                            if (c == "#000080" || c == "#005F00") {
+                            if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                                 row.getElement().style.color = "white";
                             }
                         },
@@ -884,7 +884,7 @@ var ProfileBase = {
                     let key = row.getCell("key").getValue();
                     let c = sctData.find(element => element["key"] == key)["color"].toUpperCase();
                     row.getElement().style.backgroundColor = c;
-                    if (c == "#000080" || c == "#005F00" || c == "#800080") {
+                    if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                         row.getElement().style.color = "white";
                     }
                 },
@@ -894,6 +894,9 @@ var ProfileBase = {
         },
         returnColorKey: function() {
             return this.colorKey;
+        },
+        returnColorWhiteTextArray: function(){
+            return this.colorWhiteTextArray;
         },
 
         colorKey: [
@@ -908,7 +911,9 @@ var ProfileBase = {
             { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
             { key: "Red", value: "No Entry", color: "#EE204D" }
 
-        ]
+        ],
+
+        colorWhiteTextArray: ["#000080", "#1F75FE", "#005F00", "#1CAC78", "#F664AF", "#800080", "#EE204D"]
     }
 
 }

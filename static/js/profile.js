@@ -180,7 +180,7 @@ var ProfileBase = {
                     align: "center",
                     formatter: function(cell, formatterParams, onRendered) {
                         if (cell.getValue()) {
-                            c = cell.getRow().getData().color;//cell.getRow().getCell("color").getValue();
+                            c = cell.getRow().getData().color; //cell.getRow().getCell("color").getValue();
                             cell.getElement().style.backgroundColor = c;
                             if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                                 cell.getElement().style.color = "white";
@@ -250,8 +250,15 @@ var ProfileBase = {
             let symbols = userData["symbols"]
 
             let ustColumns = [{
-                    title: "Value",
+                    title: "value",
                     field: "value",
+                    align: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "color",
+                    field: "color",
                     align: "center",
                     formatter: "textarea",
                     visible: false
@@ -342,7 +349,7 @@ var ProfileBase = {
                         z.appendChild(y);
                         let sy = cell.getRow().getCell("symbol").getValue();
                         let val = cell.getRow().getCell("value").getValue();
-
+                        let color = cell.getRow().getCell("color").getValue();
                         let trend = cell.getRow().getCell("trend").getValue();
                         let slw = cell.getRow().getCell("slw").getValue();
                         let enwl = cell.getRow().getCell("enwl").getValue();
@@ -358,6 +365,7 @@ var ProfileBase = {
                         let item = new Object();
                         item["symbol"] = sy;
                         item["value"] = val;
+                        item["color"] = color;
                         item["trend"] = trend;
                         item["slw"] = slw;
                         item["enwl"] = enwl;
@@ -442,6 +450,7 @@ var ProfileBase = {
                             let u = new Object()
                             u.symbol = item["symbol"];
                             u.value = item["value"];
+                            u.color = item["color"];
                             u.trend = item["trend"];
                             u.slw = item["slw"];
                             u.enwl = item["enwl"];
@@ -463,6 +472,22 @@ var ProfileBase = {
                             ustData.push(u)
                         }
                     }
+
+
+                    ustData.sort(function(a, b) {
+                        // Use toUpperCase() to ignore character casing
+                        let colorA = a.color.toUpperCase();
+                        let colorB = b.color.toUpperCase();
+
+                        let comparison = 0;
+                        if (colorA > colorB) {
+                            comparison = 1;
+                        } else if (colorA < colorB) {
+                            comparison = -1;
+                        }
+                        return comparison;
+                    });
+
                     var UserST = new Tabulator("#userST", {
                         tooltips: function(cell) {
                             return cell.getValue();
@@ -471,8 +496,7 @@ var ProfileBase = {
                         data: ustData,
                         layout: "fitColumns",
                         rowFormatter: function(row) {
-                            let val = row.getCell("value").getValue();
-                            let c = data_.find(element => element["value"] == val)["color"].toUpperCase();
+                            let c = row.getCell("color").getValue();
                             row.getElement().style.backgroundColor = c;
                             if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                                 row.getElement().style.color = "white";
@@ -895,7 +919,7 @@ var ProfileBase = {
         returnColorKey: function() {
             return this.colorKey;
         },
-        returnColorWhiteTextArray: function(){
+        returnColorWhiteTextArray: function() {
             return this.colorWhiteTextArray;
         },
 

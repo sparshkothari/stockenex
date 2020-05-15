@@ -132,24 +132,11 @@ var ProfileBase = {
 
         dashboardStocksTabulator: function(data, isMobile) {
 
-            let legendCMap = function() {
-                let i = ProfileBase.stockColorKey.returnColorKey();
-
-                this.returnColor = function(value) {
-                    return i.find(element => element["value"] == value)["color"];
-                }
-
-                this.returnValue = function(color) {
-                    return i.find(element => element["color"] == color.toUpperCase())["value"];
-                }
-
-            }
-
             var uniqueColors = data.reduce(function(a, b) {
                 if (a[b['color']]) {
-                    a[b['color']].push({ value: b['value'], symbol: b['symbol'] })
+                    a[b['color']].push({ value: b['value'], symbol: b['symbol'], ls: b['LS'] })
                 } else {
-                    a[b['color']] = [{ value: b['value'], symbol: b['symbol'] }]
+                    a[b['color']] = [{ value: b['value'], symbol: b['symbol'], ls: b['LS'] }]
                 }
                 return a
             }, {});
@@ -160,12 +147,16 @@ var ProfileBase = {
             var tabData = []
             var tabColumns = []
             if (isMobile) {
-                for (let color of Object.keys(uniqueColors)) {
-                    for (let k = 0; k < uniqueColors[color].length; k++) {
-                        let row = new Object()
-                        row["symbol"] = uniqueColors[color][k]["symbol"]
-                        row["color"] = color
-                        tabData.push(row);
+                let scKey = ProfileBase.stockColorKey.returnColorKey();
+                for (let j = 0; j < scKey.length; j++) {
+                    let c = scKey[j].color;
+                    if (Object.keys(uniqueColors).includes(c)) {
+                        for (let k = 0; k < uniqueColors[c].length; k++) {
+                            let row = new Object()
+                            row["symbol"] = uniqueColors[c][k]["symbol"]
+                            row["color"] = c
+                            tabData.push(row);
+                        }
                     }
                 }
                 tabColumns.push({
@@ -203,27 +194,117 @@ var ProfileBase = {
 
             } else {
 
+
+                /*let longBuy = []
+                let shortBuy = []
+                for (let color of Object.keys(uniqueColors)) {
+                    for (let i = 0; i < uniqueColors[color].length; i++) {
+                        let el = new Object();
+                        if (uniqueColors[color][i]["ls"] == "L") {
+                            el.longBuy = uniqueColors[color][i]["symbol"];
+                            el.lbColor = color;
+                            longBuy.push(el);
+                        } else if (uniqueColors[color][i]["ls"] == "S") {
+                            el.shortBuy = uniqueColors[color][i]["symbol"];
+                            el.sbColor = color;
+                            shortBuy.push(el);
+                        }
+                    }
+                }
+                 let scKey = ProfileBase.stockColorKey.returnColorKey();
+                 let ordering = {};
+                 let sortOrder = [];
+                    for (let i = 0; i < scKey.length; i++){
+                        sortOrder.push(scKey[i]["color"]);
+                    }
+                for (var i = 0; i < sortOrder.length; i++) {
+                    ordering[sortOrder[i]] = i;
+                }
+                longBuy.sort(function(a, b) {
+                    return (ordering[a.lbColor.toUpperCase()] - ordering[b.lbColor.toUpperCase()]);
+                });
+                shortBuy.sort(function(a, b) {
+                    return (ordering[a.sbColor.toUpperCase()] - ordering[b.sbColor.toUpperCase()]);
+                });
+                buyMaxLength = longBuy.length > shortBuy.length ? longBuy.length : shortBuy.length;
+                buyArray = []
+                for (let i = 0; i < buyMaxLength; i++) {
+                    if (longBuy.length > i && shortBuy.length > i) {
+                        buyArray.push(Object.assign(longBuy[i], shortBuy[i]));
+                    } else if (longBuy.length > i) {
+                        buyArray.push(longBuy[i]);
+                    } else if (shortBuy.length > i) {
+                        buyArray.push(shortBuy[i]);
+                    }
+                }
+                let tabData = buyArray;
+
+                tabColumns.push({
+                    title: "lbColor",
+                    field: "lbColor",
+                    align: "center",
+                    formatter: "textarea",
+                    visible: false
+                }, {
+                    title: "sbColor",
+                    field: "sbColor",
+                    align: "center",
+                    formatter: "textarea",
+                    visible: false
+                }, {
+                    title: "Long Buy",
+                    field: "longBuy",
+                    align: "center",
+                    formatter: function(cell, formatterParams, onRendered) {
+                        if (cell.getValue()) {
+                            let c = cell.getRow().getData().lbColor;
+                            cell.getElement().style.backgroundColor = c;
+                            if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
+                                cell.getElement().style.color = "white";
+                            }
+                        }
+                        return cell.getValue();
+                    }
+                }, {
+                    title: "Short Buy",
+                    field: "shortBuy",
+                    align: "center",
+                    formatter: function(cell, formatterParams, onRendered) {
+                        if (cell.getValue()) {
+                            let c = cell.getRow().getData().sbColor;
+                            cell.getElement().style.backgroundColor = c;
+                            if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
+                                cell.getElement().style.color = "white";
+                            }
+                        }
+                        return cell.getValue();
+                    }
+                });*/
+                let scKey = ProfileBase.stockColorKey.returnColorKey();
                 for (let i = 0; i < maxRowIndex; i++) {
                     let row = new Object()
-                    for (let color of Object.keys(uniqueColors)) {
-                        if (uniqueColors[color].length > i) {
-                            row[color] = uniqueColors[color][i]["symbol"]
+                    for (let j = 0; j < scKey.length; j++) {
+                        let c = scKey[j].color;
+                        if (Object.keys(uniqueColors).includes(c) && uniqueColors[c].length > i) {
+                            row[c] = uniqueColors[c][i]["symbol"]
                         } else {
-                            row[color] = ""
+                            row[c] = ""
                         }
                     }
                     tabData.push(row)
                 }
 
-                for (let color of Object.keys(uniqueColors)) {
+
+                for (let i = 0; i < scKey.length; i++) {
+                    let c = scKey[i].color;
                     tabColumns.push({
-                        title: new legendCMap().returnValue(color),
-                        field: color,
+                        title: scKey[i].value,
+                        field: c,
                         align: "center",
                         formatter: function(cell, formatterParams, onRendered) {
                             if (cell.getValue()) {
-                                cell.getElement().style.backgroundColor = color;
-                                if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(color.toUpperCase())) {
+                                cell.getElement().style.backgroundColor = c;
+                                if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                                     cell.getElement().style.color = "white";
                                 }
                             } else {
@@ -234,7 +315,7 @@ var ProfileBase = {
                     })
                 }
                 var CCT = new Tabulator("#dashboardStocksTabulator", {
-                    //headerVisible:false,
+                    headerVisible: false,
                     height: "100%",
                     data: tabData,
                     layout: "fitColumns",
@@ -243,6 +324,19 @@ var ProfileBase = {
                 CCT.redraw()
 
             }
+        },
+
+        dashboardStocks: function(isMobile) {
+            $.get("/stock")
+                .done(function(data, status) {
+                    let data_;
+                    if (typeof(data) == "string") {
+                        data_ = JSON.parse(data);
+                    } else {
+                        data_ = data;
+                    }
+                    ProfileBase.dashboard.dashboardStocksTabulator(data_, isMobile);
+                });
         },
 
         dashboardProfile: function() {
@@ -417,7 +511,7 @@ var ProfileBase = {
                     formatter: "textarea"
                 },
                 {
-                    title: "slw",
+                    title: "sl",
                     field: "slwLast",
                     align: "center",
                     formatter: "textarea"
@@ -473,19 +567,18 @@ var ProfileBase = {
                         }
                     }
 
-
+                    // map for efficient lookup of sortIndex
+                    let scKey = ProfileBase.stockColorKey.returnColorKey();
+                    let ordering = {};
+                    let sortOrder = [];
+                    for (let i = 0; i < scKey.length; i++){
+                        sortOrder.push(scKey[i]["color"]);
+                    }
+                    for (var i = 0; i < sortOrder.length; i++) {
+                        ordering[sortOrder[i]] = i;
+                    }
                     ustData.sort(function(a, b) {
-                        // Use toUpperCase() to ignore character casing
-                        let colorA = a.color.toUpperCase();
-                        let colorB = b.color.toUpperCase();
-
-                        let comparison = 0;
-                        if (colorA > colorB) {
-                            comparison = 1;
-                        } else if (colorA < colorB) {
-                            comparison = -1;
-                        }
-                        return comparison;
+                        return (ordering[a.color.toUpperCase()] - ordering[b.color.toUpperCase()]);
                     });
 
                     var UserST = new Tabulator("#userST", {
@@ -505,19 +598,6 @@ var ProfileBase = {
                         columns: ustColumns,
                     });
                     UserST.redraw()
-                });
-        },
-
-        dashboardStocks: function(isMobile) {
-            $.get("/stock")
-                .done(function(data, status) {
-                    let data_;
-                    if (typeof(data) == "string") {
-                        data_ = JSON.parse(data);
-                    } else {
-                        data_ = data;
-                    }
-                    ProfileBase.dashboard.dashboardStocksTabulator(data_, isMobile);
                 });
         },
 
@@ -924,15 +1004,15 @@ var ProfileBase = {
         },
 
         colorKey: [
-            { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
-            { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
-            { key: "Blue", value: "Short Entry Region", color: "#1F75FE" },
-            { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
-            { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
+            { key: "Yellow", value: "Trend Change", color: "#FCE883" },
             { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
-            { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
             { key: "Purple", value: "Profit Level 2", color: "#800080" },
-            { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
+            { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
+            { key: "Dark Green", value: "Long Entry Region 1", color: "#005F00" },
+            { key: "Green", value: "Long Entry Region 2", color: "#1CAC78" },
+            { key: "Blue", value: "Short Entry Region 1", color: "#1F75FE" },
+            { key: "Navy Blue", value: "Short Entry Region 2", color: "#000080" },
+            { key: "Cyan", value: "Short Entry Region 3", color: "#00D7AF" },
             { key: "Red", value: "No Entry", color: "#EE204D" }
 
         ],

@@ -7,7 +7,12 @@ var ProfileBase = {
     init: function() {
         $.get("/user")
             .done(function(data, status) {
-                localStorage.setItem("userData", JSON.stringify(data, null, 2))
+                if (typeof(data) == "string") {
+                    data = data;
+                } else {
+                    data = JSON.stringify(data, null, 2);
+                }
+                localStorage.setItem("userData", data); //JSON.stringify(data, null, 2))
                 ProfileBase.profile.init()
                 ProfileBase.subscrip.init()
                 ProfileBase.stockColorKey.init("stockColorKey")
@@ -27,7 +32,7 @@ var ProfileBase = {
             let uatColumns = [{
                     title: "Item",
                     field: "Item",
-                    hozAlign: "center",
+                    align: "center",
                     width: 200,
                     formatter: function(cell) {
                         cell.getElement().style.height = "25px"
@@ -37,7 +42,7 @@ var ProfileBase = {
                 {
                     title: "Value",
                     field: "Value",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: function(cell) {
                         cell.getElement().style.height = "25px"
                         return cell.getValue()
@@ -110,69 +115,65 @@ var ProfileBase = {
     dashboard: {
 
         init: function() {
+            $.get("/isMobile")
+                .done(function(data, status) {
+                    if (typeof(data) == "string") {
+                        data = JSON.parse(data);
+                    }
+                    ProfileBase.dashboard.dashboardStocks(data["isMobile"]);
+                    ProfileBase.dashboard.dashboardProfile();
+                    //ProfileBase.dashboard.dashCharts();
+                    ProfileBase.dashboard.generateStockList();
+                    ProfileBase.dashboard.addEventListeners();
+                });
 
-            this.dashboardStocks();
-            this.dashboardProfile();
-            //this.dashCharts();
-            this.generateStockList();
-            this.addEventListeners();
 
         },
 
-        dashboardStocksTabulator: function(data) {
+        dashboardStocksTabulator: function(data, isMobile) {
+
             var uniqueColors = data.reduce(function(a, b) {
                 if (a[b['color']]) {
-                    a[b['color']].push({ value: b['value'], symbol: b['symbol'] })
+                    a[b['color']].push({ value: b['value'], symbol: b['symbol'], ls: b['LS'] })
                 } else {
-                    a[b['color']] = [{ value: b['value'], symbol: b['symbol'] }]
+                    a[b['color']] = [{ value: b['value'], symbol: b['symbol'], ls: b['LS'] }]
                 }
                 return a
             }, {});
+
             let y = Object.values(uniqueColors).map(function(a) { return a.length; }).indexOf(Math.max.apply(Math, Object.values(uniqueColors).map(function(a) { return a.length; })));
             let maxColumnIndex = Object.keys(uniqueColors).length
             let maxRowIndex = Object.values(uniqueColors)[y].length
             var tabData = []
             var tabColumns = []
-            for (let i = 0; i < maxRowIndex; i++) {
-                let row = new Object()
-                for (let color of Object.keys(uniqueColors)) {
-                    if (uniqueColors[color].length > i) {
-                        row[color] = uniqueColors[color][i]["symbol"]
-                    } else {
-                        row[color] = ""
+            if (isMobile) {
+                let scKey = ProfileBase.stockColorKey.returnColorKey();
+                for (let j = 0; j < scKey.length; j++) {
+                    let c = scKey[j].color;
+                    if (Object.keys(uniqueColors).includes(c)) {
+                        for (let k = 0; k < uniqueColors[c].length; k++) {
+                            let row = new Object()
+                            row["symbol"] = uniqueColors[c][k]["symbol"]
+                            row["color"] = c
+                            tabData.push(row);
+                        }
                     }
                 }
-                tabData.push(row)
-            }
-
-            let legendCMap = function() {
-                let i = ProfileBase.stockColorKey.returnColorKey();
-
-                this.returnColor = function(value) {
-                    return i.find(element => element["value"] == value)["color"];
-                }
-
-                this.returnValue = function(color) {
-                    return i.find(element => element["color"] == color.toUpperCase())["value"];
-                }
-
-            }
-
-
-            for (let color of Object.keys(uniqueColors)) {
                 tabColumns.push({
-                    title: new legendCMap().returnValue(color),
-                    field: color,
-                    hozAlign: "center",
+                    title: "color",
+                    field: "color",
+                    align: "center",
+                    visible: false
+                });
+                tabColumns.push({
+                    title: "symbol",
+                    field: "symbol",
+                    align: "center",
                     formatter: function(cell, formatterParams, onRendered) {
-                        let sy = JSON.parse(localStorage.getItem("userData"))["symbols"]
                         if (cell.getValue()) {
-                            if (sy.includes(cell.getValue())) {
-                                cell.getElement().style.backgroundColor = "#C0C0C0";
-                            } else {
-                                cell.getElement().style.backgroundColor = color;
-                            }
-                            if (color == "#000080" || color == "#005f00" || color == "#800080") {
+                            c = cell.getRow().getData().color; //cell.getRow().getCell("color").getValue();
+                            cell.getElement().style.backgroundColor = c;
+                            if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                                 cell.getElement().style.color = "white";
                             }
                         } else {
@@ -180,16 +181,162 @@ var ProfileBase = {
                         }
                         return cell.getValue();
                     }
-                })
+                });
+
+                var CCT = new Tabulator("#dashboardStocksTabulator", {
+                    //headerVisible:false,
+                    height: "100%",
+                    data: tabData,
+                    layout: "fitColumns",
+                    columns: tabColumns,
+                });
+                CCT.redraw()
+
+            } else {
+
+
+                /*let longBuy = []
+                let shortBuy = []
+                for (let color of Object.keys(uniqueColors)) {
+                    for (let i = 0; i < uniqueColors[color].length; i++) {
+                        let el = new Object();
+                        if (uniqueColors[color][i]["ls"] == "L") {
+                            el.longBuy = uniqueColors[color][i]["symbol"];
+                            el.lbColor = color;
+                            longBuy.push(el);
+                        } else if (uniqueColors[color][i]["ls"] == "S") {
+                            el.shortBuy = uniqueColors[color][i]["symbol"];
+                            el.sbColor = color;
+                            shortBuy.push(el);
+                        }
+                    }
+                }
+                 let scKey = ProfileBase.stockColorKey.returnColorKey();
+                 let ordering = {};
+                 let sortOrder = [];
+                    for (let i = 0; i < scKey.length; i++){
+                        sortOrder.push(scKey[i]["color"]);
+                    }
+                for (var i = 0; i < sortOrder.length; i++) {
+                    ordering[sortOrder[i]] = i;
+                }
+                longBuy.sort(function(a, b) {
+                    return (ordering[a.lbColor.toUpperCase()] - ordering[b.lbColor.toUpperCase()]);
+                });
+                shortBuy.sort(function(a, b) {
+                    return (ordering[a.sbColor.toUpperCase()] - ordering[b.sbColor.toUpperCase()]);
+                });
+                buyMaxLength = longBuy.length > shortBuy.length ? longBuy.length : shortBuy.length;
+                buyArray = []
+                for (let i = 0; i < buyMaxLength; i++) {
+                    if (longBuy.length > i && shortBuy.length > i) {
+                        buyArray.push(Object.assign(longBuy[i], shortBuy[i]));
+                    } else if (longBuy.length > i) {
+                        buyArray.push(longBuy[i]);
+                    } else if (shortBuy.length > i) {
+                        buyArray.push(shortBuy[i]);
+                    }
+                }
+                let tabData = buyArray;
+
+                tabColumns.push({
+                    title: "lbColor",
+                    field: "lbColor",
+                    align: "center",
+                    formatter: "textarea",
+                    visible: false
+                }, {
+                    title: "sbColor",
+                    field: "sbColor",
+                    align: "center",
+                    formatter: "textarea",
+                    visible: false
+                }, {
+                    title: "Long Buy",
+                    field: "longBuy",
+                    align: "center",
+                    formatter: function(cell, formatterParams, onRendered) {
+                        if (cell.getValue()) {
+                            let c = cell.getRow().getData().lbColor;
+                            cell.getElement().style.backgroundColor = c;
+                            if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
+                                cell.getElement().style.color = "white";
+                            }
+                        }
+                        return cell.getValue();
+                    }
+                }, {
+                    title: "Short Buy",
+                    field: "shortBuy",
+                    align: "center",
+                    formatter: function(cell, formatterParams, onRendered) {
+                        if (cell.getValue()) {
+                            let c = cell.getRow().getData().sbColor;
+                            cell.getElement().style.backgroundColor = c;
+                            if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
+                                cell.getElement().style.color = "white";
+                            }
+                        }
+                        return cell.getValue();
+                    }
+                });*/
+                let scKey = ProfileBase.stockColorKey.returnColorKey();
+                for (let i = 0; i < maxRowIndex; i++) {
+                    let row = new Object()
+                    for (let j = 0; j < scKey.length; j++) {
+                        let c = scKey[j].color;
+                        if (Object.keys(uniqueColors).includes(c) && uniqueColors[c].length > i) {
+                            row[c] = uniqueColors[c][i]["symbol"]
+                        } else {
+                            row[c] = ""
+                        }
+                    }
+                    tabData.push(row)
+                }
+
+
+                for (let i = 0; i < scKey.length; i++) {
+                    let c = scKey[i].color;
+                    tabColumns.push({
+                        title: scKey[i].value,
+                        field: c,
+                        align: "center",
+                        formatter: function(cell, formatterParams, onRendered) {
+                            if (cell.getValue()) {
+                                cell.getElement().style.backgroundColor = c;
+                                if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
+                                    cell.getElement().style.color = "white";
+                                }
+                            } else {
+                                cell.getElement().style.backgroundColor = "black";
+                            }
+                            return cell.getValue();
+                        }
+                    })
+                }
+                var CCT = new Tabulator("#dashboardStocksTabulator", {
+                    headerVisible: false,
+                    height: "100%",
+                    data: tabData,
+                    layout: "fitColumns",
+                    columns: tabColumns,
+                });
+                CCT.redraw()
+
             }
-            var CCT = new Tabulator("#dashboardStocksTabulator", {
-                //headerVisible:false,
-                height: "100%",
-                data: tabData,
-                layout: "fitColumns",
-                columns: tabColumns,
-            });
-            CCT.redraw()
+        },
+
+        dashboardStocks: function(isMobile) {
+            $.get("/stock")
+                .done(function(data, status) {
+                    let data_;
+                    if (typeof(data) == "string") {
+                        data_ = JSON.parse(data);
+                    } else {
+                        data_ = data;
+                    }
+                    ProfileBase.dashboard.dashboardStocksTabulator(data_, isMobile);
+                });
         },
 
         dashboardProfile: function() {
@@ -197,78 +344,85 @@ var ProfileBase = {
             let symbols = userData["symbols"]
 
             let ustColumns = [{
-                    title: "Value",
+                    title: "value",
                     field: "value",
-                    hozAlign: "center",
+                    align: "center",
+                    formatter: "textarea",
+                    visible: false
+                },
+                {
+                    title: "color",
+                    field: "color",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "slw",
                     field: "slw",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "enwl",
                     field: "enwl",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "enwh",
                     field: "enwh",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "exwl",
                     field: "exwl",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "exwh",
                     field: "exwh",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "high",
                     field: "high",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "low",
                     field: "low",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "close",
                     field: "close",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
                 {
                     title: "date",
                     field: "date",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 }, {
                     title: "LS",
                     field: "LS",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     visible: false
                 },
@@ -276,7 +430,7 @@ var ProfileBase = {
                 {
                     title: "",
                     field: "viewGraph",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea",
                     width: 50,
                     cellClick: function(e, cell) {
@@ -289,7 +443,7 @@ var ProfileBase = {
                         z.appendChild(y);
                         let sy = cell.getRow().getCell("symbol").getValue();
                         let val = cell.getRow().getCell("value").getValue();
-
+                        let color = cell.getRow().getCell("color").getValue();
                         let trend = cell.getRow().getCell("trend").getValue();
                         let slw = cell.getRow().getCell("slw").getValue();
                         let enwl = cell.getRow().getCell("enwl").getValue();
@@ -305,6 +459,7 @@ var ProfileBase = {
                         let item = new Object();
                         item["symbol"] = sy;
                         item["value"] = val;
+                        item["color"] = color;
                         item["trend"] = trend;
                         item["slw"] = slw;
                         item["enwl"] = enwl;
@@ -334,43 +489,43 @@ var ProfileBase = {
                 {
                     title: "symbol",
                     field: "symbol",
-                    hozAlign: "center",
+                    align: "center",
                     width: 75
                 },
                 {
                     title: "trend",
                     field: "trend",
-                    hozAlign: "middle",
+                    align: "middle",
                     width: 75
                 },
                 {
                     title: "enw",
                     field: "enw",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 },
                 {
                     title: "exw",
                     field: "exw",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 },
                 {
-                    title: "slw",
+                    title: "sl",
                     field: "slwLast",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 },
                 {
                     title: "close",
                     field: "closeLast",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 },
                 {
                     title: "low—high",
                     field: "lowHigh",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: "textarea"
                 }
 
@@ -378,12 +533,18 @@ var ProfileBase = {
             let ustData = []
             $.get("/stock")
                 .done(function(data, status) {
-                    var data_ = data;
+                    let data_;
+                    if (typeof(data) == "string") {
+                        data_ = JSON.parse(data);
+                    } else {
+                        data_ = data;
+                    }
                     for (let item of data_) {
                         if (symbols.includes(item["symbol"])) {
                             let u = new Object()
                             u.symbol = item["symbol"];
                             u.value = item["value"];
+                            u.color = item["color"];
                             u.trend = item["trend"];
                             u.slw = item["slw"];
                             u.enwl = item["enwl"];
@@ -405,6 +566,21 @@ var ProfileBase = {
                             ustData.push(u)
                         }
                     }
+
+                    // map for efficient lookup of sortIndex
+                    let scKey = ProfileBase.stockColorKey.returnColorKey();
+                    let ordering = {};
+                    let sortOrder = [];
+                    for (let i = 0; i < scKey.length; i++){
+                        sortOrder.push(scKey[i]["color"]);
+                    }
+                    for (var i = 0; i < sortOrder.length; i++) {
+                        ordering[sortOrder[i]] = i;
+                    }
+                    ustData.sort(function(a, b) {
+                        return (ordering[a.color.toUpperCase()] - ordering[b.color.toUpperCase()]);
+                    });
+
                     var UserST = new Tabulator("#userST", {
                         tooltips: function(cell) {
                             return cell.getValue();
@@ -413,24 +589,15 @@ var ProfileBase = {
                         data: ustData,
                         layout: "fitColumns",
                         rowFormatter: function(row) {
-                            let val = row.getCell("value").getValue();
-                            let c = data_.find(element => element["value"] == val)["color"].toUpperCase();
+                            let c = row.getCell("color").getValue();
                             row.getElement().style.backgroundColor = c;
-                            if (c == "#000080" || c == "#005F00") {
+                            if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                                 row.getElement().style.color = "white";
                             }
                         },
                         columns: ustColumns,
                     });
                     UserST.redraw()
-                });
-        },
-
-        dashboardStocks: function() {
-            $.get("/stock")
-                .done(function(data, status) {
-                    var data_ = data;
-                    ProfileBase.dashboard.dashboardStocksTabulator(data_);
                 });
         },
 
@@ -599,6 +766,11 @@ var ProfileBase = {
             $.get("/stock")
                 .done(function(data, status) {
                     let i = 0;
+                    if (typeof(data) == "string") {
+                        data = JSON.parse(data);
+                    } else {
+                        data = data;
+                    }
                     for (let item of data) {
                         if (symbols.includes(item["symbol"])) {
                             let u = ProfileBase.dashboard.getDashObject(item)
@@ -634,7 +806,7 @@ var ProfileBase = {
 
                     for (let j = 0; j < columnCount; j++) {
                         let u = document.createElement("div");
-                        u.classList = "w3-col s" + 12/columnCount + " w3-center";
+                        u.classList = "w3-col s" + 12 / columnCount + " w3-center";
 
                         let divColName;
                         if ((i + j) < cellCount) {
@@ -658,6 +830,11 @@ var ProfileBase = {
             let symbols = JSON.parse(localStorage.getItem("userData"))["symbols"]
             $.get("/stock")
                 .done(function(data, status) {
+                    if (typeof(data) == "string") {
+                        data = JSON.parse(data);
+                    } else {
+                        data = data;
+                    }
                     let dashboardSel = document.getElementById("dashboardList")
                     let addSel = document.getElementById("addStockList");
                     let removeSel = document.getElementById("removeStockList");
@@ -783,7 +960,7 @@ var ProfileBase = {
             let sctColumns = [{
                     title: "Key",
                     field: "key",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: function(cell) {
                         cell.getElement().style.height = "25px"
                         return cell.getValue()
@@ -792,7 +969,7 @@ var ProfileBase = {
                 {
                     title: "Value",
                     field: "value",
-                    hozAlign: "center",
+                    align: "center",
                     formatter: function(cell) {
                         cell.getElement().style.height = "25px"
                         return cell.getValue()
@@ -804,14 +981,14 @@ var ProfileBase = {
                 tooltips: function(cell) {
                     return cell.getValue();
                 },
-                height: "280px",
+                height: "205px",
                 data: sctData,
                 layout: "fitColumns",
                 rowFormatter: function(row) {
                     let key = row.getCell("key").getValue();
                     let c = sctData.find(element => element["key"] == key)["color"].toUpperCase();
                     row.getElement().style.backgroundColor = c;
-                    if (c == "#000080" || c == "#005F00" || c == "#800080") {
+                    if (ProfileBase.stockColorKey.returnColorWhiteTextArray().includes(c.toUpperCase())) {
                         row.getElement().style.color = "white";
                     }
                 },
@@ -822,20 +999,21 @@ var ProfileBase = {
         returnColorKey: function() {
             return this.colorKey;
         },
+        returnColorWhiteTextArray: function() {
+            return this.colorWhiteTextArray;
+        },
 
         colorKey: [
-            { key: "Navy Blue", value: "Short Entry Region", color: "#000080" },
-            { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
-            { key: "Blue", value: "Short Entry Region", color: "#1F75FE" },
-            { key: "Dark Green", value: "Long Entry Region", color: "#005F00" },
-            { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
+            { key: "Yellow", value: "Trend Change", color: "#FCE883" },
             { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
-            { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
             { key: "Purple", value: "Profit Level 2", color: "#800080" },
-            { key: "Yellow", value: "Breakout Day", color: "#FCE883" },
+            { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
+            { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
+            { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
             { key: "Red", value: "No Entry", color: "#EE204D" }
+        ],
 
-        ]
+        colorWhiteTextArray: ["#000080", "#1F75FE", "#005F00", "#1CAC78", "#F664AF", "#800080", "#EE204D"]
     }
 
 }

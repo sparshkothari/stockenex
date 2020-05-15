@@ -981,7 +981,7 @@ var ProfileBase = {
                 tooltips: function(cell) {
                     return cell.getValue();
                 },
-                height: "280px",
+                height: "205px",
                 data: sctData,
                 layout: "fitColumns",
                 rowFormatter: function(row) {
@@ -1008,13 +1008,9 @@ var ProfileBase = {
             { key: "Lime", value: "Low Entry Level Day", color: "#00FF00" },
             { key: "Purple", value: "Profit Level 2", color: "#800080" },
             { key: "Magenta", value: "Profit Level 1", color: "#F664AF" },
-            { key: "Dark Green", value: "Long Entry Region 1", color: "#005F00" },
-            { key: "Green", value: "Long Entry Region 2", color: "#1CAC78" },
-            { key: "Blue", value: "Short Entry Region 1", color: "#1F75FE" },
-            { key: "Navy Blue", value: "Short Entry Region 2", color: "#000080" },
-            { key: "Cyan", value: "Short Entry Region 3", color: "#00D7AF" },
+            { key: "Green", value: "Long Entry Region", color: "#1CAC78" },
+            { key: "Cyan", value: "Short Entry Region", color: "#00D7AF" },
             { key: "Red", value: "No Entry", color: "#EE204D" }
-
         ],
 
         colorWhiteTextArray: ["#000080", "#1F75FE", "#005F00", "#1CAC78", "#F664AF", "#800080", "#EE204D"]

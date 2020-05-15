@@ -29,6 +29,11 @@ def fetchStocks():
             if color in colorMap.keys():
                 color = colorMap[color]
             color = string.upper(color)
+            if color == "#005F00" or color == "#1CAC78":
+                color = "#1CAC78"
+            elif color == "#1F75FE" or color == "#000080" or color == "#00D7AF":
+                color = "#00D7AF"
+
             value = lineInfo[2]
 
             st = Stock(symbol=symbol)

@@ -2,6 +2,7 @@ from mongoengine import *
 from models import Stock
 from smart_open import open
 import json
+import string
 
 
 def fetchStocks():
@@ -27,6 +28,12 @@ def fetchStocks():
                 color = "cyan3"
             if color in colorMap.keys():
                 color = colorMap[color]
+            color = string.upper(color)
+            if color == "#005F00" or color == "#1CAC78":
+                color = "#1CAC78"
+            elif color == "#1F75FE" or color == "#000080" or color == "#00D7AF":
+                color = "#00D7AF"
+
             value = lineInfo[2]
 
             st = Stock(symbol=symbol)
